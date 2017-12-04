@@ -149,10 +149,8 @@ def fc(x, num_in, num_out, name, relu=True):
             return act
 
 
-def max_pool(x, filter_height, filter_width, stride_y, stride_x, name,
-             padding='SAME'):
+def max_pool(x, filter_height, filter_width, stride_y, stride_x, name,padding='SAME'):
     """Create a max pooling layer."""
-
     return tf.nn.max_pool(x, ksize=[1, filter_height, filter_width, 1],strides=[1, stride_y, stride_x, 1],padding=padding, name=name)
 
 
