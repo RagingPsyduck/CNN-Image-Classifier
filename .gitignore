@@ -4,4 +4,4 @@ test/
 output/checkpoints
 output/tensorboard
 bvlc_alexnet.npy
-
+.idea/
