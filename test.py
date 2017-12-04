@@ -16,6 +16,7 @@ def test_image(path_image, num_class, weights_path='Default'):
     saver = tf.train.Saver()
     with tf.Session() as sess:
         sess.run(tf.global_variables_initializer())
+        #saver.restore(sess, tf.train.latest_checkpoint('.'))
         saver.restore(sess, "./output/checkpoints/model_epoch5.ckpt")
         # score = model.fc8
         print(sess.run(model.fc8))
@@ -25,4 +26,4 @@ def test_image(path_image, num_class, weights_path='Default'):
         plt.show()
 
 
-test_image('/home/teng/Desktop/git repos/CNN-Image-Classifier/test/cat/11.jpg', num_class=0)
+test_image('test/cat/9.jpg', num_class=0)

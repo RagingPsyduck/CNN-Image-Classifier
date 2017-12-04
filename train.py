@@ -1,7 +1,3 @@
-"""
-writen by stephen
-"""
-
 import os
 import numpy as np
 import tensorflow as tf
@@ -12,22 +8,22 @@ import glob
 from tensorflow.contrib.data import Iterator
 
 learning_rate = 1e-4
-num_epochs = 5  # 代的个数
+num_epochs = 5
 batch_size = 16
 dropout_rate = 0.5
 num_classes = 2  # 类别标签
 train_layers = ['fc8', 'fc7', 'fc6']
 display_step = 20
 
-filewriter_path = "./output/tensorboard"  # 存储tensorboard文件
-checkpoint_path = "./output/checkpoints"  # 训练好的模型和参数存放目录
+filewriter_path = "./output/tensorboard"
+checkpoint_path = "./output/checkpoints"  
 
 if not os.path.isdir(checkpoint_path):
     os.mkdir(checkpoint_path)
 
-train_image_path = 'train/'  # 指定训练集数据路径（根据实际情况指定训练数据集的路径）
-test_image_cat_path = 'test/cat/'  # 指定测试集数据路径（根据实际情况指定测试数据集的路径）
-test_image_dog_path = 'test/dog/'  # 指定测试集数据路径（根据实际情况指定测试数据集的路径）
+train_image_path = 'train/'
+test_image_cat_path = 'test/cat/'
+test_image_dog_path = 'test/dog/'
 
 label_path = []
 test_label = []
@@ -80,7 +76,6 @@ x = tf.placeholder(tf.float32, [batch_size, 227, 227, 3])
 y = tf.placeholder(tf.float32, [batch_size, num_classes])
 keep_prob = tf.placeholder(tf.float32)
 
-# 图片数据通过AlexNet网络处理
 model = AlexNet(x, keep_prob, num_classes, train_layers)
 
 # List of trainable variables of the layers we want to train
@@ -90,12 +85,9 @@ var_list = [v for v in tf.trainable_variables() if v.name.split('/')[0] in train
 score = model.fc8
 
 with tf.name_scope('loss'):
-    # 损失函数
-    loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=score,
-                                                              labels=y))
+    loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits=score,labels=y))
 
 gradients = tf.gradients(loss, var_list)
-
 gradients = list(zip(gradients, var_list))
 
 with tf.name_scope('optimizer'):
@@ -126,15 +118,12 @@ with tf.Session() as sess:
 
     # 把模型图加入Tensorboard
     writer.add_graph(sess.graph)
-
     # 把训练好的权重加入未训练的网络中
     model.load_initial_weights(sess)
 
     print("{} Start training...".format(datetime.now()))
-    print("{} Open Tensorboard at --logdir {}".format(datetime.now(),
-                                                      filewriter_path))
+    print("{} Open Tensorboard at --logdir {}".format(datetime.now(),filewriter_path))
 
-    # 总共训练10代
     for epoch in range(num_epochs):
         sess.run(training_initalize)
         print("{} Epoch number: {} start".format(datetime.now(), epoch + 1))
@@ -146,10 +135,7 @@ with tf.Session() as sess:
                                            y: label_batch,
                                            keep_prob: dropout_rate})
             if step % display_step == 0:
-                s = sess.run(merged_summary, feed_dict={x: img_batch,
-                                                        y: label_batch,
-                                                        keep_prob: 1.})
-
+                s = sess.run(merged_summary, feed_dict={x: img_batch,y: label_batch,keep_prob: 1.})
                 writer.add_summary(s, epoch * train_batches_per_epoch + step)
 
         # 测试模型精确度
