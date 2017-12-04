@@ -16,7 +16,7 @@ train_layers = ['fc8', 'fc7', 'fc6']
 display_step = 20
 
 filewriter_path = "./output/tensorboard"
-checkpoint_path = "./output/checkpoints"  
+checkpoint_path = "./output/checkpoints"
 
 if not os.path.isdir(checkpoint_path):
     os.mkdir(checkpoint_path)
