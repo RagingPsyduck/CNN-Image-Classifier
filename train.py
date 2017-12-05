@@ -10,7 +10,7 @@ learning_rate = 1e-4
 numOfEpochs = 5
 batch_size = 16
 dropout_rate = 0.5
-num_classes = 2 
+num_classes = 2
 train_layers = ['fc8', 'fc7', 'fc6']
 display_step = 20
 
@@ -88,7 +88,6 @@ gradients = tf.gradients(loss, var_list)
 gradients = list(zip(gradients, var_list))
 
 with tf.name_scope('optimizer'):
-    # 优化器，采用梯度下降算法进行优化
     optimizer = tf.train.GradientDescentOptimizer(learning_rate)
     train_op = optimizer.apply_gradients(grads_and_vars=gradients)
 

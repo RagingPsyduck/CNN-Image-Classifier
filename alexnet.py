@@ -3,9 +3,8 @@ import numpy as np
 
 
 class AlexNet(object):
-    def __init__(self, x, keep_prob, num_classes, skip_layer,weights_path='DEFAULT'):
+    def __init__(self, x, keep_prob, num_classes, skip_layer):
         """Create the graph of the AlexNet model.
-
         Args:
             x: Placeholder for the input tensor.
             keep_prob: Dropout probability.
@@ -20,18 +19,13 @@ class AlexNet(object):
         self.NUM_CLASSES = num_classes
         self.KEEP_PROB = keep_prob
         self.SKIP_LAYER = skip_layer
-
-        if weights_path == 'DEFAULT':
-            self.WEIGHTS_PATH = 'bvlc_alexnet.npy'
-        else:
-            self.WEIGHTS_PATH = weights_path
+        self.WEIGHTS_PATH = 'bvlc_alexnet.npy'
 
         # Call the create function to build the computational graph of AlexNet
         self.create()
 
     def create(self):
         """Create the network graph."""
-
         # 1st Layer: Conv (w ReLu) -> Lrn -> Pool
         conv1 = conv(self.X, 11, 11, 96, 4, 4, padding='VALID', name='conv1')
         norm1 = lrn(conv1, 2, 2e-05, 0.75, name='norm1')
@@ -65,27 +59,18 @@ class AlexNet(object):
         self.fc8 = fc(dropout7, 4096, self.NUM_CLASSES, relu=False, name='fc8')
 
     def load_initial_weights(self, session):
-        """Load weights from file into network."""
-
-        # Load the weights into memory
-        weights_dict = np.load(self.WEIGHTS_PATH, encoding='bytes').item()
-
+        pretrainedWeight = np.load(self.WEIGHTS_PATH, encoding='bytes').item()
         # Loop over all layer names stored in the weights dict
-        for op_name in weights_dict:
-
+        for op_name in pretrainedWeight:
             # Check if layer should be trained from scratch
             if op_name not in self.SKIP_LAYER:
-
                 with tf.variable_scope(op_name, reuse=True):
-
                     # Assign weights/biases to their corresponding tf variable
-                    for data in weights_dict[op_name]:
-
+                    for data in pretrainedWeight[op_name]:
                         # Biases
                         if len(data.shape) == 1:
                             var = tf.get_variable('biases', trainable=False)
                             session.run(var.assign(data))
-
                         # Weights
                         else:
                             var = tf.get_variable('weights', trainable=False)
@@ -94,20 +79,14 @@ class AlexNet(object):
 
 def conv(x, filter_height, filter_width, num_filters, stride_y, stride_x, name,padding='SAME', groups=1):
     """Create a convolution layer."""
-
     # Get number of input channels
     input_channels = int(x.get_shape()[-1])
-
     # Create lambda function for the convolution
     convolve = lambda i, k: tf.nn.conv2d(i, k,strides=[1, stride_y, stride_x, 1],padding=padding)
 
     with tf.variable_scope(name) as scope:
         # Create tf variables for the weights and biases of the conv layer
-        weights = tf.get_variable('weights', shape=[filter_height,
-                                                    filter_width,
-                                                    input_channels/groups,
-                                                    num_filters])
-
+        weights = tf.get_variable('weights', shape=[filter_height,filter_width,input_channels/groups,num_filters])
         biases = tf.get_variable('biases', shape=[num_filters])
 
         if groups == 1:
@@ -137,7 +116,6 @@ def fc(x, num_in, num_out, name, relu=True):
         # Create tf variables for the weights and biases
         weights = tf.get_variable('weights', shape=[num_in, num_out],trainable=True)
         biases = tf.get_variable('biases', [num_out], trainable=True)
-
         # Matrix multiply weights and inputs and add bias
         act = tf.nn.xw_plus_b(x, weights, biases, name=scope.name)
 

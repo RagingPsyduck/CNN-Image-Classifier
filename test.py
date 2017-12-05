@@ -5,12 +5,12 @@ import matplotlib.pyplot as plt
 class_name = ['cat', 'dog']
 
 
-def test_image(path_image, num_class, weights_path='Default'):
+def test_image(path_image):
     img_string = tf.read_file(path_image)
     img_decoded = tf.image.decode_png(img_string, channels=3)
     img_resized = tf.image.resize_images(img_decoded, [227, 227])
     img_resized = tf.reshape(img_resized, shape=[1, 227, 227, 3])
-    model = AlexNet(img_resized, 0.5, 2, skip_layer='', weights_path=weights_path)
+    model = AlexNet(img_resized, 0.5, 2, skip_layer='')
     score = tf.nn.softmax(model.fc8)
     max = tf.arg_max(score, 1)
     saver = tf.train.Saver()
@@ -26,4 +26,4 @@ def test_image(path_image, num_class, weights_path='Default'):
         plt.show()
 
 
-test_image('test/dog/3.jpg', num_class=0)
+test_image('test/cat/9.jpg')
