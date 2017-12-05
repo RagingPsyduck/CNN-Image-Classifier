@@ -3,7 +3,6 @@ import numpy as np
 import tensorflow as tf
 from alexnet import AlexNet
 from datagenerator import ImageDataGenerator
-from datetime import datetime
 import glob
 from tensorflow.contrib.data import Iterator
 
