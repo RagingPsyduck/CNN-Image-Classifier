@@ -10,7 +10,7 @@ learning_rate = 1e-4
 numOfEpochs = 5
 batch_size = 16
 dropout_rate = 0.5
-num_classes = 2  # 类别标签
+num_classes = 2 
 train_layers = ['fc8', 'fc7', 'fc6']
 display_step = 20
 
@@ -110,7 +110,6 @@ test_batches_per_epoch = int(np.floor(test_data.data_size / batch_size))
 
 with tf.Session() as sess:
     sess.run(tf.global_variables_initializer())
-
     # Add model graph to Tensorboard
     writer.add_graph(sess.graph)
     # Add trained weight to untrained network
@@ -118,7 +117,7 @@ with tf.Session() as sess:
 
     for epoch in range(numOfEpochs):
         sess.run(training_initalize)
-        print("Epoch number: {} start".format(epoch + 1))
+        print("Epoch number: {} ".format(epoch))
 
         # Start training by epoch
         for step in range(train_batches_per_epoch):
@@ -127,7 +126,6 @@ with tf.Session() as sess:
             if step % display_step == 0:
                 s = sess.run(merged_summary, feed_dict={x: img_batch,y: label_batch,keep_prob: 1.})
                 writer.add_summary(s, epoch * train_batches_per_epoch + step)
-
         # Test accuracy
         sess.run(testing_initalize)
         correctOutputCount = 0.
@@ -143,4 +141,3 @@ with tf.Session() as sess:
         print("Validation Accuracy = {:.4f}".format(correctOutputCount))
         checkpoint_name = os.path.join(checkpoint_path, 'model_epoch' + str(epoch + 1) + '.ckpt')
         save_path = saver.save(sess, checkpoint_name)
-        print("Epoch number: {} end".format(epoch + 1))
