@@ -26,4 +26,4 @@ def test_image(path_image, num_class, weights_path='Default'):
         plt.show()
 
 
-test_image('test/cat/9.jpg', num_class=0)
+test_image('test/dog/3.jpg', num_class=0)

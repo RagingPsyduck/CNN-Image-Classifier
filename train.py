@@ -8,7 +8,7 @@ import glob
 from tensorflow.contrib.data import Iterator
 
 learning_rate = 1e-4
-num_epochs = 5
+numOfEpochs = 5
 batch_size = 16
 dropout_rate = 0.5
 num_classes = 2  # 类别标签
@@ -63,9 +63,7 @@ test_data = ImageDataGenerator(
     num_classes=num_classes,
     shuffle=False)
 with tf.name_scope('input'):
-    # 定义迭代器
     iterator = Iterator.from_structure(tr_data.data.output_types,tr_data.data.output_shapes)
-
     training_initalize=iterator.make_initializer(tr_data.data)
     testing_initalize=iterator.make_initializer(test_data.data)
 
@@ -95,8 +93,6 @@ with tf.name_scope('optimizer'):
     optimizer = tf.train.GradientDescentOptimizer(learning_rate)
     train_op = optimizer.apply_gradients(grads_and_vars=gradients)
 
-
-
 # 定义网络精确度
 with tf.name_scope("accuracy"):
     correct_pred = tf.equal(tf.argmax(score, 1), tf.argmax(y, 1))
@@ -116,48 +112,36 @@ test_batches_per_epoch = int(np.floor(test_data.data_size / batch_size))
 with tf.Session() as sess:
     sess.run(tf.global_variables_initializer())
 
-    # 把模型图加入Tensorboard
+    # Add model graph to Tensorboard
     writer.add_graph(sess.graph)
-    # 把训练好的权重加入未训练的网络中
+    # Add trained weight to untrained network
     model.load_initial_weights(sess)
 
-    print("{} Start training...".format(datetime.now()))
-    print("{} Open Tensorboard at --logdir {}".format(datetime.now(),filewriter_path))
-
-    for epoch in range(num_epochs):
+    for epoch in range(numOfEpochs):
         sess.run(training_initalize)
-        print("{} Epoch number: {} start".format(datetime.now(), epoch + 1))
+        print("Epoch number: {} start".format(epoch + 1))
 
-        #开始训练每一代
+        # Start training by epoch
         for step in range(train_batches_per_epoch):
             img_batch, label_batch = sess.run(next_batch)
-            sess.run(train_op, feed_dict={x: img_batch,
-                                           y: label_batch,
-                                           keep_prob: dropout_rate})
+            sess.run(train_op, feed_dict={x: img_batch,y: label_batch,keep_prob: dropout_rate})
             if step % display_step == 0:
                 s = sess.run(merged_summary, feed_dict={x: img_batch,y: label_batch,keep_prob: 1.})
                 writer.add_summary(s, epoch * train_batches_per_epoch + step)
 
-        # 测试模型精确度
-        print("{} Start validation".format(datetime.now()))
+        # Test accuracy
         sess.run(testing_initalize)
-        test_acc = 0.
-        test_count = 0
+        correctOutputCount = 0.
+        totalCount = 0
 
         for _ in range(test_batches_per_epoch):
             img_batch, label_batch = sess.run(next_batch)
             acc = sess.run(accuracy, feed_dict={x: img_batch,y: label_batch,keep_prob: 1.0})
-            test_acc += acc
-            test_count += 1
+            correctOutputCount += acc
+            totalCount += 1
 
-        test_acc /= test_count
-
-        print("{} Validation Accuracy = {:.4f}".format(datetime.now(), test_acc))
-
-        # 把训练好的模型存储起来
-        print("{} Saving checkpoint of model...".format(datetime.now()))
-
+        correctOutputCount /= totalCount
+        print("Validation Accuracy = {:.4f}".format(correctOutputCount))
         checkpoint_name = os.path.join(checkpoint_path, 'model_epoch' + str(epoch + 1) + '.ckpt')
         save_path = saver.save(sess, checkpoint_name)
-
-        print("{} Epoch number: {} end".format(datetime.now(), epoch + 1))
+        print("Epoch number: {} end".format(epoch + 1))
