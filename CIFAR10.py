@@ -1,23 +1,21 @@
-import pickle
+
 import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
+import CIFARHelper as helper
 
 
 CIFAR_DIR = 'cifar-10-batches-py/'
 
 
-def unpickle(file):
-    with open(file, 'rb') as fo:
-        cifar_dict = pickle.load(fo, encoding='bytes')
-    return cifar_dict
+
 
 dirs = ['batches.meta','data_batch_1','data_batch_2','data_batch_3','data_batch_4','data_batch_5','test_batch']
 
 all_data = [0,1,2,3,4,5,6]
 
 for i,direc in zip(all_data,dirs):
-    all_data[i] = unpickle(CIFAR_DIR+direc)
+    all_data[i] = helper.unpickle(CIFAR_DIR+direc)
 
 batch_meta = all_data[0]
 data_batch1 = all_data[1]
