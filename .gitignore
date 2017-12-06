@@ -5,3 +5,4 @@ output/checkpoints
 output/tensorboard
 bvlc_alexnet.npy
 .idea/
+cifar-10-batches-py/
