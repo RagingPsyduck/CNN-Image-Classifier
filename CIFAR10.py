@@ -1,7 +1,6 @@
-import matplotlib.pyplot as plt
 import numpy as np
 import tensorflow as tf
-import CIFARHelper as helper
+import CIFARHelper as CIFARHelper
 
 CIFARPath = 'cifar-10-batches-py/'
 
@@ -9,8 +8,8 @@ dirs = ['batches.meta', 'data_batch_1', 'data_batch_2', 'data_batch_3', 'data_ba
 
 inputs = [0, 1, 2, 3, 4, 5, 6]
 
-for i, path in zip(inputs, dirs):
-    inputs[i] = helper.unpickle(CIFARPath + path)
+for i, dir in zip(inputs, dirs):
+    inputs[i] = CIFARHelper.unpickle(CIFARPath + dir)
 
 batchMeta = inputs[0]
 batch1 = inputs[1]
@@ -19,15 +18,6 @@ batch3 = inputs[3]
 batch4 = inputs[4]
 batch5 = inputs[5]
 testBatch = inputs[6]
-
-
-X = batch1[b"data"]
-X = X.reshape(10000, 3, 32, 32).transpose(0, 2, 3, 1).astype("uint8")
-X[0].max()
-(X[0] / 255).max()
-
-plt.imshow(X[0])
-plt.imshow(X[1])
 
 
 def one_hot_encode(vec, vals=10):
@@ -76,9 +66,10 @@ class CifarHelper():
         self.i = (self.i + batch_size) % len(self.training_images)
         return x, y
 
-
 ch = CifarHelper()
 ch.set_up_images()
+
+
 x = tf.placeholder(tf.float32, shape=[None, 32, 32, 3])
 y_true = tf.placeholder(tf.float32, shape=[None, 10])
 hold_prob = tf.placeholder(tf.float32)
