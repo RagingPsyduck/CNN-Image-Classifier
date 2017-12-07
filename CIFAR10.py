@@ -43,9 +43,7 @@ def conv2d(x, W):
 
 
 def max_pool_2by2(x):
-    return tf.nn.max_pool(x, ksize=[1, 2, 2, 1],
-                          strides=[1, 2, 2, 1], padding='SAME')
-
+    return tf.nn.max_pool(x, ksize=[1, 2, 2, 1],strides=[1, 2, 2, 1], padding='SAME')
 
 def convolutional_layer(input_x, shape):
     W = init_weights(shape)
@@ -76,19 +74,14 @@ init = tf.global_variables_initializer()
 
 with tf.Session() as sess:
     sess.run(tf.global_variables_initializer())
-
     for i in range(5000):
         batch = ch.next_batch(100)
         sess.run(train, feed_dict={x: batch[0], y_true: batch[1], hold_prob: 0.5})
-
-        # PRINT OUT A MESSAGE EVERY 100 STEPS
         if i % 100 == 0:
             print('Currently on step {}'.format(i))
             print('Accuracy is:')
             # Test the Train Model
             matches = tf.equal(tf.argmax(y_pred, 1), tf.argmax(y_true, 1))
-
             acc = tf.reduce_mean(tf.cast(matches, tf.float32))
-
             print(sess.run(acc, feed_dict={x: ch.test_images, y_true: ch.test_labels, hold_prob: 1.0}))
             print('\n')
