@@ -96,8 +96,7 @@ def conv(x, filter_height, filter_width, num_filters, stride_y, stride_x, name,p
         else:
             # Split input and weights and convolve them separately
             input_groups = tf.split(axis=3, num_or_size_splits=groups, value=x)
-            weight_groups = tf.split(axis=3, num_or_size_splits=groups,
-                                     value=weights)
+            weight_groups = tf.split(axis=3, num_or_size_splits=groups,value=weights)
             output_groups = [convolve(i, k) for i, k in zip(input_groups, weight_groups)]
             # Concat the convolved output together again
             conv = tf.concat(axis=3, values=output_groups)
