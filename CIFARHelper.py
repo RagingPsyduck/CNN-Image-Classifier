@@ -15,15 +15,11 @@ class CifarHelper():
         self.test_labels = None
 
     def set_up_images(self):
-        print("Setting Up Training Images and Labels")
-
         self.training_images = np.vstack([d[b"data"] for d in self.all_train_batches])
         train_len = len(self.training_images)
 
         self.training_images = self.training_images.reshape(train_len, 3, 32, 32).transpose(0, 2, 3, 1) / 255
         self.training_labels = one_hot_encode(np.hstack([d[b"labels"] for d in self.all_train_batches]), 10)
-
-        print("Setting Up Test Images and Labels")
 
         self.test_images = np.vstack([d[b"data"] for d in self.test_batch])
         test_len = len(self.test_images)
