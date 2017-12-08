@@ -2,16 +2,16 @@ import tensorflow as tf
 import CIFARHelper as CIFARHelper
 
 LEARNING_RATE = 0.001
-STEP = 100 # 5000
+STEP = 200 # 5000
 
-CIFARPath = 'cifar-10-batches-py/'
+CIFARPATH = 'cifar-10-batches-py/'
 FILEWRITER_PATH = "./cifarOutput/tensorboard"
 CHECKPOINT_PATH = "./cifarOutput/checkpoints"
 dirs = ['batches.meta', 'data_batch_1', 'data_batch_2', 'data_batch_3', 'data_batch_4', 'data_batch_5', 'test_batch']
 inputs = [0, 1, 2, 3, 4, 5, 6]
 
 for i, dir in zip(inputs, dirs):
-    inputs[i] = CIFARHelper.unpickle(CIFARPath + dir)
+    inputs[i] = CIFARHelper.unpickle(CIFARPATH + dir)
 
 batchMeta = inputs[0]
 batch1 = inputs[1]
