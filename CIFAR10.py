@@ -1,6 +1,7 @@
-import numpy as np
 import tensorflow as tf
 import CIFARHelper as CIFARHelper
+
+LEARNING_RATE = 0.001
 
 CIFARPath = 'cifar-10-batches-py/'
 dirs = ['batches.meta', 'data_batch_1', 'data_batch_2', 'data_batch_3', 'data_batch_4', 'data_batch_5', 'test_batch']
@@ -25,15 +26,16 @@ y_true = tf.placeholder(tf.float32, shape=[None, 10])
 hold_prob = tf.placeholder(tf.float32)
 
 conv1 = CIFARHelper.convLayer(x, shape=[4, 4, 3, 32])
-conv1Pooling = CIFARHelper.max_pool_2by2(conv1)
+conv1Pooling = CIFARHelper.pool2by2(conv1)
 conv2 = CIFARHelper.convLayer(conv1Pooling, shape=[4, 4, 32, 64])
-conv2Pooling = CIFARHelper.max_pool_2by2(conv2)
+conv2Pooling = CIFARHelper.pool2by2(conv2)
 conv2Flat = tf.reshape(conv2Pooling, [-1, 8 * 8 * 64])
 full_layer_one = tf.nn.relu(CIFARHelper.normal_full_layer(conv2Flat, 1024))
 full_one_dropout = tf.nn.dropout(full_layer_one, keep_prob=hold_prob)
 y_pred = CIFARHelper.normal_full_layer(full_one_dropout, 10)
 cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=y_true, logits=y_pred))
-optimizer = tf.train.AdamOptimizer(learning_rate=0.001)
+optimizer = tf.train.AdamOptimizer(learning_rate=LEARNING_RATE)
+
 train = optimizer.minimize(cross_entropy)
 init = tf.global_variables_initializer()
 

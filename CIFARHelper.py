@@ -59,7 +59,7 @@ def initBias(shape):
 def conv2d(x, W):
     return tf.nn.conv2d(x, W, strides=[1, 1, 1, 1], padding='SAME')
 
-def max_pool_2by2(x):
+def pool2by2(x):
     return tf.nn.max_pool(x, ksize=[1, 2, 2, 1],strides=[1, 2, 2, 1], padding='SAME')
 
 def convLayer(input_x, shape):
