@@ -30,7 +30,6 @@ hold_prob = tf.placeholder(tf.float32)
 
 conv1 = CIFARHelper.convolutional_layer(x, shape=[4, 4, 3, 32])
 conv1Pooling = CIFARHelper.max_pool_2by2(conv1)
-
 conv2 = CIFARHelper.convolutional_layer(conv1Pooling, shape=[4, 4, 32, 64])
 conv2Pooling = CIFARHelper.max_pool_2by2(conv2)
 conv2Flat = tf.reshape(conv2Pooling, [-1, 8 * 8 * 64])
