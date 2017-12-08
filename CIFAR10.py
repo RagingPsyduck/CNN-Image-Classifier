@@ -47,10 +47,7 @@ with tf.Session() as sess:
         batch = ch.next_batch(100)
         sess.run(train, feed_dict={x: batch[0], y_true: batch[1], hold_prob: 0.5})
         if i % 100 == 0:
-            print('Currently on step {}'.format(i))
-            print('Accuracy is:')
-            # Test the Train Model
+            print('Step {}'.format(i))
             matches = tf.equal(tf.argmax(y_pred, 1), tf.argmax(y_true, 1))
             acc = tf.reduce_mean(tf.cast(matches, tf.float32))
-            print(sess.run(acc, feed_dict={x: ch.test_images, y_true: ch.test_labels, hold_prob: 1.0}))
-            print('\n')
+            print('Accuracy is:{}'.format(sess.run(acc, feed_dict={x: ch.test_images, y_true: ch.test_labels, hold_prob: 1.0})))
