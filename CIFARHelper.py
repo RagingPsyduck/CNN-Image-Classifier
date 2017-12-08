@@ -52,29 +52,28 @@ def one_hot_encode(vec, vals=10):
     out[range(n), vec] = 1
     return out
 
-def init_weights(shape):
+def initWeights(shape):
     init_random_dist = tf.truncated_normal(shape, stddev=0.1)
     return tf.Variable(init_random_dist)
 
-def init_bias(shape):
+def initBias(shape):
     init_bias_vals = tf.constant(0.1, shape=shape)
     return tf.Variable(init_bias_vals)
 
 def conv2d(x, W):
     return tf.nn.conv2d(x, W, strides=[1, 1, 1, 1], padding='SAME')
 
-
 def max_pool_2by2(x):
     return tf.nn.max_pool(x, ksize=[1, 2, 2, 1],strides=[1, 2, 2, 1], padding='SAME')
 
-def convolutional_layer(input_x, shape):
-    W = init_weights(shape)
-    b = init_bias([shape[3]])
+def convLayer(input_x, shape):
+    W = initWeights(shape)
+    b = initBias([shape[3]])
     return tf.nn.relu(conv2d(input_x, W) + b)
 
 
 def normal_full_layer(input_layer, size):
     input_size = int(input_layer.get_shape()[1])
-    W = init_weights([input_size, size])
-    b = init_bias([size])
+    W = initWeights([input_size, size])
+    b = initBias([size])
     return tf.matmul(input_layer, W) + b
