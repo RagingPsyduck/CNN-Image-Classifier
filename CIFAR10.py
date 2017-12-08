@@ -2,8 +2,11 @@ import tensorflow as tf
 import CIFARHelper as CIFARHelper
 
 LEARNING_RATE = 0.001
+STEP = 100 # 5000
 
 CIFARPath = 'cifar-10-batches-py/'
+FILEWRITER_PATH = "./cifarOutput/tensorboard"
+CHECKPOINT_PATH = "./cifarOutput/checkpoints"
 dirs = ['batches.meta', 'data_batch_1', 'data_batch_2', 'data_batch_3', 'data_batch_4', 'data_batch_5', 'test_batch']
 inputs = [0, 1, 2, 3, 4, 5, 6]
 
@@ -39,9 +42,12 @@ optimizer = tf.train.AdamOptimizer(learning_rate=LEARNING_RATE)
 train = optimizer.minimize(cross_entropy)
 init = tf.global_variables_initializer()
 
+writer = tf.summary.FileWriter(FILEWRITER_PATH)
+
 with tf.Session() as sess:
     sess.run(tf.global_variables_initializer())
-    for i in range(5000):
+    writer.add_graph(sess.graph)
+    for i in range(STEP):
         batch = ch.next_batch(100)
         sess.run(train, feed_dict={x: batch[0], y_true: batch[1], hold_prob: 0.5})
         if i % 100 == 0:
