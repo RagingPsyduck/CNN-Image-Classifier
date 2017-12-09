@@ -68,7 +68,7 @@ def convLayer(input_x, shape):
     return tf.nn.relu(conv2d(input_x, W) + b)
 
 
-def normal_full_layer(input_layer, size):
+def normalFullLayer(input_layer, size):
     input_size = int(input_layer.get_shape()[1])
     W = initWeights([input_size, size])
     b = initBias([size])

@@ -26,6 +26,7 @@ ch.set_up_images()
 
 x = tf.placeholder(tf.float32, shape=[None, 32, 32, 3])
 y_true = tf.placeholder(tf.float32, shape=[None, 10])
+# Dropout
 hold_prob = tf.placeholder(tf.float32)
 
 conv1 = CIFARHelper.convLayer(x, shape=[4, 4, 3, 32])
@@ -33,9 +34,9 @@ conv1Pooling = CIFARHelper.pool2by2(conv1)
 conv2 = CIFARHelper.convLayer(conv1Pooling, shape=[4, 4, 32, 64])
 conv2Pooling = CIFARHelper.pool2by2(conv2)
 conv2Flat = tf.reshape(conv2Pooling, [-1, 8 * 8 * 64])
-full_layer_one = tf.nn.relu(CIFARHelper.normal_full_layer(conv2Flat, 1024))
-full_one_dropout = tf.nn.dropout(full_layer_one, keep_prob=hold_prob)
-y_pred = CIFARHelper.normal_full_layer(full_one_dropout, 10)
+fullConnecteLayer = tf.nn.relu(CIFARHelper.normalFullLayer(conv2Flat, 1024))
+full_one_dropout = tf.nn.dropout(fullConnecteLayer, keep_prob=hold_prob)
+y_pred = CIFARHelper.normalFullLayer(full_one_dropout, 10)
 cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=y_true, logits=y_pred))
 optimizer = tf.train.AdamOptimizer(learning_rate=LEARNING_RATE)
 
