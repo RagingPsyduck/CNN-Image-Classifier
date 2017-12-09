@@ -44,13 +44,22 @@ init = tf.global_variables_initializer()
 
 writer = tf.summary.FileWriter(FILEWRITER_PATH)
 
+with tf.name_scope('Accuracy'):
+    correctPrediction = tf.equal(tf.argmax(y_pred, 1), tf.argmax(y_true, 1))
+    accuracy = tf.reduce_mean(tf.cast(correctPrediction, tf.float32))
+
+tf.summary.scalar("accuracy", accuracy)
+merged = tf.summary.merge_all()
+
 with tf.Session() as sess:
     sess.run(tf.global_variables_initializer())
     writer.add_graph(sess.graph)
     for i in range(STEP):
         batch = ch.next_batch(100)
         sess.run(train, feed_dict={x: batch[0], y_true: batch[1], hold_prob: 0.5})
-        if i % 100 == 0:
-            matches = tf.equal(tf.argmax(y_pred, 1), tf.argmax(y_true, 1))
-            acc = tf.reduce_mean(tf.cast(matches, tf.float32))
-            print('Step {} , Accuracy is:{:.4f}'.format(i,sess.run(acc, feed_dict={x: ch.test_images, y_true: ch.test_labels, hold_prob: 1.0})))
+        if i % 10 == 0:
+            summary, acc = sess.run([merged, accuracy], feed_dict={x: ch.test_images, y_true: ch.test_labels, hold_prob: 1.0})
+            writer.add_summary(summary, i)
+            # correctPrediction = tf.equal(tf.argmax(y_pred, 1), tf.argmax(y_true, 1))
+            # accuracy = tf.reduce_mean(tf.cast(correctPrediction, tf.float32))
+            print('Step {} , Accuracy is:{:.4f}'.format(i,sess.run(accuracy, feed_dict={x: ch.test_images, y_true: ch.test_labels, hold_prob: 1.0})))
