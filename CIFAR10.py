@@ -61,6 +61,4 @@ with tf.Session() as sess:
         if i % 1 == 0:
             summary, acc = sess.run([mergedSummary, accuracy], feed_dict={x: ch.test_images, y_true: ch.test_labels, hold_prob: 1.0})
             writer.add_summary(summary, i)
-            # correctPrediction = tf.equal(tf.argmax(y_pred, 1), tf.argmax(y_true, 1))
-            # accuracy = tf.reduce_mean(tf.cast(correctPrediction, tf.float32))
             print('Step {} , Accuracy is:{:.4f}'.format(i,sess.run(accuracy, feed_dict={x: ch.test_images, y_true: ch.test_labels, hold_prob: 1.0})))
