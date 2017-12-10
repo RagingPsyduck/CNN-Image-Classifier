@@ -6,7 +6,8 @@ from sklearn.utils import shuffle
 
 LabelNames=['Airplane','Automobile','Bird','Cat','Deer','Dog','Frog','Horse','Ship','Truck']
 # Load Folder Path
-DatasetFolderPath='cifar-10-batches-pgity'
+DatasetFolderPath='cifar-10-batches-py'
+
 
 # Specify Number of Batches
 NumBatches=5

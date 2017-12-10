@@ -40,7 +40,7 @@ full_one_dropout = tf.nn.dropout(fullConnecteLayer, keep_prob=hold_prob)
 y_pred = CIFARHelper.normalFullLayer(full_one_dropout, 10)
 cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=y_true, logits=y_pred))
 #optimizer = tf.train.AdamOptimizer(learning_rate=LEARNING_RATE)
-optimizer = tf.train.MomentumOptimizer(LEARNING_RATE,0.9)
+optimizer = tf.train.AdagradOptimizer(LEARNING_RATE)
 
 train = optimizer.minimize(cross_entropy)
 init = tf.global_variables_initializer()
