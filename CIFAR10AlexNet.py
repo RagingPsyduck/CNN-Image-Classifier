@@ -1,24 +1,12 @@
+
 import pickle
-import os
-import pickle
-import math
-import cv2
 import numpy as np
-import matplotlib.pyplot as plt
-import matplotlib.image as mpimg
-from scipy.signal import find_peaks_cwt
-import random
 from sklearn.utils import shuffle
-import csv
-from urllib.request import urlretrieve
-from os.path import isfile, isdir
-from tqdm import tqdm
-import tarfile
-import glob
+
 
 LabelNames=['Airplane','Automobile','Bird','Cat','Deer','Dog','Frog','Horse','Ship','Truck']
 # Load Folder Path
-DatasetFolderPath='cifar-10-batches-py'
+DatasetFolderPath='cifar-10-batches-pgity'
 
 # Specify Number of Batches
 NumBatches=5
