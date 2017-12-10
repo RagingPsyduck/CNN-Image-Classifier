@@ -1,7 +1,7 @@
 import tensorflow as tf
 import CIFARHelper as CIFARHelper
 
-LEARNING_RATE = 0.001
+LEARNING_RATE = 0.001 # 0.001
 STEP = 5000 # 5000
 
 CIFARPATH = 'cifar-10-batches-py/'
@@ -35,10 +35,12 @@ conv2 = CIFARHelper.convLayer(conv1Pooling, shape=[4, 4, 32, 64])
 conv2Pooling = CIFARHelper.pool2by2(conv2)
 conv2Flat = tf.reshape(conv2Pooling, [-1, 8 * 8 * 64])
 fullConnecteLayer = tf.nn.relu(CIFARHelper.normalFullLayer(conv2Flat, 1024))
+#fullConnecteLayer = tf.nn.tanh(CIFARHelper.normalFullLayer(conv2Flat, 1024))
 full_one_dropout = tf.nn.dropout(fullConnecteLayer, keep_prob=hold_prob)
 y_pred = CIFARHelper.normalFullLayer(full_one_dropout, 10)
 cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=y_true, logits=y_pred))
-optimizer = tf.train.AdamOptimizer(learning_rate=LEARNING_RATE)
+#optimizer = tf.train.AdamOptimizer(learning_rate=LEARNING_RATE)
+optimizer = tf.train.MomentumOptimizer(LEARNING_RATE,0.9)
 
 train = optimizer.minimize(cross_entropy)
 init = tf.global_variables_initializer()
