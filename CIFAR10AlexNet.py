@@ -1,23 +1,22 @@
-
 import pickle
 import numpy as np
 from sklearn.utils import shuffle
+import tensorflow as tf
+import time
 
 
 LabelNames=['Airplane','Automobile','Bird','Cat','Deer','Dog','Frog','Horse','Ship','Truck']
 # Load Folder Path
-DatasetFolderPath='cifar-10-batches-py'
-
+CIFARPATH= 'cifar-10-batches-py'
 
 # Specify Number of Batches
 NumBatches=5
-
 # Initiate Training Data
 XTrain,YTrain=[],[]
 
 # Load Batch Data in Loops
 for BatchID in range(1,NumBatches+1):
-    with open(DatasetFolderPath+'/data_batch_'+str(BatchID),mode='rb') as File:
+    with open(CIFARPATH+ '/data_batch_'+str(BatchID), mode='rb') as File:
         Batch=pickle.load(File,encoding='latin1')
     if (BatchID==1):
         XTrain=Batch['data'].reshape((len(Batch['data']),3,32,32)).transpose(0, 2, 3, 1)
@@ -42,7 +41,7 @@ print('Number of Classes: {}'.format(dict(zip(*np.unique(YTrain,return_counts=Tr
 print('First 20 Labels: {}'.format(YTrain[:20]))
 
 
-with open(DatasetFolderPath+'/test_batch',mode='rb') as File:
+with open(CIFARPATH+ '/test_batch', mode='rb') as File:
     Batch=pickle.load(File, encoding='latin1')
 # load the training data
 XTest=Batch['data'].reshape((len(Batch['data']), 3, 32, 32)).transpose(0, 2, 3, 1)
@@ -61,35 +60,24 @@ print('Training Data Randomized and Split for Validation')
 print('Training Data Size:'+str(XTrain.shape))
 print('Validation Data Size:'+str(XVal.shape))
 
-import tensorflow as tf
-#from tensorflow.contrib.layers import flatten
-import time
-
-# DEFINE ARCHITECTURE
-# Set Epochs and Batch Size
 Epochs=20
 BatchSize=128
 
-# DEFINE ARCHITECTURE
-# Load Pre-Trained Network
-NetData=np.load('bvlc_alexnet.npy',encoding='bytes').item()
-print('Pre-trained Network Loaded!')
 
+preTrainedData=np.load('bvlc_alexnet.npy', encoding='bytes').item()
 
 # DEFINE ARCHITECTURE
 # Set a Placeholder
 Features=tf.placeholder(tf.float32,(None,32,32,3))
 Labels=tf.placeholder(tf.int64,None)
 Resized=tf.image.resize_images(Features,(227,227))
-print('Set Placeholder!')
-
 
 # DEFINE ALEXNET ARCHITECTURE
 def AlexNetCIFAR10(X):
     # Layer 01: Convolutional.
     # Set Layer Parameters & Network
-    W1 = tf.Variable(NetData["conv1"][0])
-    B1 = tf.Variable(NetData["conv1"][1])
+    W1 = tf.Variable(preTrainedData["conv1"][0])
+    B1 = tf.Variable(preTrainedData["conv1"][1])
     CO = 96
     CI = X.get_shape()[-1]
     assert CI % 1 == 0
@@ -108,8 +96,8 @@ def AlexNetCIFAR10(X):
 
     # Layer 02: Convolutional.
     # Set Layer Parameters & Network
-    W2 = tf.Variable(NetData["conv2"][0])
-    B2 = tf.Variable(NetData["conv2"][1])
+    W2 = tf.Variable(preTrainedData["conv2"][0])
+    B2 = tf.Variable(preTrainedData["conv2"][1])
     InputGroups = tf.split(Maxpool1, 2, 3)
     KernelGroups = tf.split(W2, 2, 3)
     Convolve = lambda i, k: tf.nn.conv2d(i, k, [1, 1, 1, 1], padding='SAME')
@@ -128,8 +116,8 @@ def AlexNetCIFAR10(X):
 
     # Layer 03: Convolutional.
     # Set Layer Parameters & Network
-    W3 = tf.Variable(NetData["conv3"][0])
-    B3 = tf.Variable(NetData["conv3"][1])
+    W3 = tf.Variable(preTrainedData["conv3"][0])
+    B3 = tf.Variable(preTrainedData["conv3"][1])
     Conv3 = tf.nn.conv2d(Maxpool2, W3, [1, 1, 1, 1], padding='SAME')
     Conv3 = tf.reshape(tf.nn.bias_add(Conv3, B3), [-1] + Conv3.get_shape().as_list()[1:])
 
@@ -138,8 +126,8 @@ def AlexNetCIFAR10(X):
 
     # Layer 04: Convolutional.
     # Set Layer Parameters & Network
-    W4 = tf.Variable(NetData["conv4"][0])
-    B4 = tf.Variable(NetData["conv4"][1])
+    W4 = tf.Variable(preTrainedData["conv4"][0])
+    B4 = tf.Variable(preTrainedData["conv4"][1])
     InputGroups = tf.split(Conv3, 2, 3)
     KernelGroups = tf.split(W4, 2, 3)
     Convolve = lambda i, k: tf.nn.conv2d(i, k, [1, 1, 1, 1], padding='SAME')
@@ -152,8 +140,8 @@ def AlexNetCIFAR10(X):
 
     # Layer 05: Convolutional.
     # Set Layer Parameters & Network
-    W5 = tf.Variable(NetData["conv5"][0])
-    B5 = tf.Variable(NetData["conv5"][1])
+    W5 = tf.Variable(preTrainedData["conv5"][0])
+    B5 = tf.Variable(preTrainedData["conv5"][1])
     InputGroups = tf.split(Conv4, 2, 3)
     KernelGroups = tf.split(W5, 2, 3)
     Convolve = lambda i, k: tf.nn.conv2d(i, k, [1, 1, 1, 1], padding='SAME')
@@ -168,14 +156,14 @@ def AlexNetCIFAR10(X):
     Maxpool5 = tf.nn.max_pool(Conv5, ksize=[1, 3, 3, 1], strides=[1, 2, 2, 1], padding='VALID')
 
     # Layer 06: Fully Connected.
-    W6 = tf.Variable(NetData["fc6"][0])
-    B6 = tf.Variable(NetData["fc6"][1])
+    W6 = tf.Variable(preTrainedData["fc6"][0])
+    B6 = tf.Variable(preTrainedData["fc6"][1])
     Flat = tf.reshape(Maxpool5, [-1, int(np.prod(Maxpool5.get_shape()[1:]))])
     N6 = tf.nn.relu(tf.matmul(Flat, W6) + B6)
 
     # Layer 07: Fully Connected.
-    W7 = tf.Variable(NetData["fc7"][0])
-    B7 = tf.Variable(NetData["fc7"][1])
+    W7 = tf.Variable(preTrainedData["fc7"][0])
+    B7 = tf.Variable(preTrainedData["fc7"][1])
     N7 = tf.nn.relu(tf.matmul(N6, W7) + B7)
 
     # Return Last Layer
