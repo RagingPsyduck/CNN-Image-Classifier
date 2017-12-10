@@ -18,7 +18,7 @@ import glob
 
 LabelNames=['Airplane','Automobile','Bird','Cat','Deer','Dog','Frog','Horse','Ship','Truck']
 # Load Folder Path
-DatasetFolderPath='Cifar-10-Batches-Py'
+DatasetFolderPath='cifar-10-batches-py'
 
 # Specify Number of Batches
 NumBatches=5
