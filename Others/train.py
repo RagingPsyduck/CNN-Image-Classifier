@@ -1,10 +1,12 @@
+import glob
 import os
+
 import numpy as np
 import tensorflow as tf
-from alexnet import AlexNet
-from datagenerator import ImageDataGenerator
-import glob
 from tensorflow.contrib.data import Iterator
+
+from Others.alexnet import AlexNet
+from Others.datagenerator import ImageDataGenerator
 
 learning_rate = 1e-4
 numOfEpochs = 5

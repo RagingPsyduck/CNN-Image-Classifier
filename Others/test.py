@@ -1,6 +1,7 @@
-import tensorflow as tf
-from alexnet import AlexNet
 import matplotlib.pyplot as plt
+import tensorflow as tf
+
+from Others.alexnet import AlexNet
 
 class_name = ['cat', 'dog']
 
