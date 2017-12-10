@@ -52,15 +52,6 @@ print("Image Shape:{}".format(XTrain[0].shape))
 print('Number of Classes: {}'.format(dict(zip(*np.unique(YTrain,return_counts=True)))))
 print('First 20 Labels: {}'.format(YTrain[:20]))
 
-Index=Index=random.randint(0,len(XTrain))
-SampleImage=XTrain[Index]
-SampleLabel=YTrain[Index]
-print('Example of Image {}:'.format(Index))
-print('Min Value: {} Max Value: {}'.format(SampleImage.min(),SampleImage.max()))
-print('Label ID: {} Name: {}'.format(SampleLabel,LabelNames[SampleLabel]))
-plt.figure(figsize=(1,1))
-plt.axis('off')
-plt.imshow(SampleImage)
 
 with open(DatasetFolderPath+'/test_batch',mode='rb') as File:
     Batch=pickle.load(File, encoding='latin1')
@@ -68,40 +59,15 @@ with open(DatasetFolderPath+'/test_batch',mode='rb') as File:
 XTest=Batch['data'].reshape((len(Batch['data']), 3, 32, 32)).transpose(0, 2, 3, 1)
 YTest=Batch['labels']
 
-# Plot Random Image
-Index=Index=random.randint(0,len(XTest))
-SampleImage=XTrain[Index]
-SampleLabel=YTrain[Index]
-print('Example of Image {}:'.format(Index))
-print('Min Value: {} Max Value: {}'.format(SampleImage.min(),SampleImage.max()))
-print('Label ID: {} Name: {}'.format(SampleLabel,LabelNames[SampleLabel]))
-plt.figure(figsize=(1,1))
-plt.axis('off')
-plt.imshow(SampleImage)
 
-plt.figure(figsize=(15,5))
-plt.hist(YTrain,bins=10,label='Training Data',color='blue')
-plt.hist(YTest,bins=10,label='Testing Data',color='green')
-plt.title('Frequency of Each Class in Training & Testing Set')
-plt.ylabel('Count')
-plt.legend(loc='upper right')
-plt.xticks(np.arange(0.5,10+0.5,0.9),[0,1,2,3,4,5,6,7,8,9],ha='right',rotation=0)
-plt.show()
+
 
 XTrain,YTrain=shuffle(XTrain,YTrain)
 XTest,YTest=shuffle(XTest,YTest)
 print('Training and Testing Data Shuffled')
 
 
-from sklearn.cross_validation import train_test_split
-XTrain,XVal,YTrain,YVal=train_test_split(XTrain,YTrain,test_size=0.10,random_state=0)
-print('Training Data Randomized and Split for Validation')
-print('Training Data Size:'+str(XTrain.shape))
-print('Validation Data Size:'+str(XVal.shape))
 
-
-# DEFINE ARCHITECTURE
-# Import Tensorflow
 import tensorflow as tf
 from tensorflow.contrib.layers import flatten
 import time
@@ -113,7 +79,7 @@ BatchSize=128
 
 # DEFINE ARCHITECTURE
 # Load Pre-Trained Network
-NetData=np.load("bvlc-alexnet.npy",encoding="latin1").item()
+NetData=np.load("bvlc-alexnet.npy",encoding='bytes').item()
 print('Pre-trained Network Loaded!')
 
 
