@@ -2,7 +2,6 @@ import pickle
 import numpy as np
 from sklearn.utils import shuffle
 import tensorflow as tf
-import time
 import AlexNet as AlexNet
 from sklearn.model_selection import train_test_split
 
@@ -30,15 +29,11 @@ for i in range(1, totalBatchCount + 1):
 assert (len(trainInput) == len(trainLabel))
 NumClass = len(set(trainLabel))
 
-# Print Data Characteristics
-print("Training Set:{} Samples".format(len(trainInput)))
-print("Image Shape:{}".format(trainInput[0].shape))
-print('Number of Classes: {}'.format(dict(zip(*np.unique(trainLabel, return_counts=True)))))
-print('First 20 Labels: {}'.format(trainLabel[:20]))
 
 with open(CIFARPATH + '/test_batch', mode='rb') as File:
     Batch = pickle.load(File, encoding='latin1')
-# load the training data
+
+
 testInput = Batch['data'].reshape((len(Batch['data']), 3, 32, 32)).transpose(0, 2, 3, 1)
 testLabel = Batch['labels']
 
@@ -62,7 +57,6 @@ def evaluate(X, Y, Sess):
         totalLoss += (Loss * XBatch.shape[0])
         totalAcc += (Acc * XBatch.shape[0])
 
-    # Return Loss and Accuracy
     return totalLoss / X.shape[0], totalAcc / X.shape[0]
 
 Epochs = 20
@@ -79,28 +73,23 @@ N7 = tf.stop_gradient(N7)
 Shape = (N7.get_shape().as_list()[-1], NumClass)
 W8 = tf.Variable(tf.truncated_normal(Shape, stddev=1e-2))
 B8 = tf.Variable(tf.zeros(NumClass))
-Logits = tf.nn.xw_plus_b(N7, W8, B8)
+logits = tf.nn.xw_plus_b(N7, W8, B8)
 
 
-crossEntropy = tf.nn.sparse_softmax_cross_entropy_with_logits(logits=Logits, labels=labels)
+crossEntropy = tf.nn.sparse_softmax_cross_entropy_with_logits(logits=logits, labels=labels)
 LossOp = tf.reduce_mean(crossEntropy)
-Opt = tf.train.AdamOptimizer()
-TrainOp = Opt.minimize(LossOp, var_list=[W8, B8])
-InitOp = tf.global_variables_initializer()
-Preds = tf.arg_max(Logits, 1)
-AccuracyOp = tf.reduce_mean(tf.cast(tf.equal(Preds, labels), tf.float32))
+optimizer = tf.train.AdamOptimizer()
+train = optimizer.minimize(LossOp, var_list=[W8, B8])
+predict = tf.arg_max(logits, 1)
+AccuracyOp = tf.reduce_mean(tf.cast(tf.equal(predict, labels), tf.float32))
 
 with tf.Session() as sess:
-    sess.run(InitOp)
+    sess.run(tf.global_variables_initializer())
     for step in range(Epochs):
         trainInput, trainLabel = shuffle(trainInput, trainLabel)
-        T0 = time.time()
         for Offset in range(0, trainInput.shape[0], BatchSize):
             End = Offset + BatchSize
-            sess.run(TrainOp, feed_dict={features: trainInput[Offset:End], labels: trainLabel[Offset:End]})
+            sess.run(train, feed_dict={features: trainInput[Offset:End], labels: trainLabel[Offset:End]})
 
-        ValLoss, ValAcc = evaluate(XVal, YVal, sess)
-        print("Epoch {}, Accuracy {}".format(step + 1, ValAcc))
-        # print("Time: %.3f seconds" % (time.time() - T0))
-        # print("Validation Loss =", ValLoss)
-        # print("Validation Accuracy =", ValAcc)
+        loss, acc = evaluate(XVal, YVal, sess)
+        print("Epoch {}, Accuracy {}".format(step + 1, acc))
