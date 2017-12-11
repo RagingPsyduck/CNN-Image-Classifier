@@ -1,16 +1,16 @@
 import tensorflow as tf
 import numpy as np
 
-def AlexNetCIFAR10(X,preTrainedData):
+def train(x, preTrainedData):
     # Layer 01: Convolutional.
     # Set Layer Parameters & Network
     W1 = tf.Variable(preTrainedData["conv1"][0])
     B1 = tf.Variable(preTrainedData["conv1"][1])
     CO = 96
-    CI = X.get_shape()[-1]
+    CI = x.get_shape()[-1]
     assert CI % 1 == 0
     assert CO % 1 == 0
-    Conv1Init = tf.nn.conv2d(X, W1, [1, 4, 4, 1], padding='SAME')
+    Conv1Init = tf.nn.conv2d(x, W1, [1, 4, 4, 1], padding='SAME')
     Conv1 = tf.reshape(tf.nn.bias_add(Conv1Init, B1), [-1] + Conv1Init.get_shape().as_list()[1:])
 
     # Set Activation
