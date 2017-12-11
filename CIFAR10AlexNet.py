@@ -24,7 +24,7 @@ for i in range(1, 6):
 
 
 assert (len(trainInput) == len(trainLabel))
-NumClass = len(set(trainLabel))
+classCount = len(set(trainLabel))
 
 
 with open(CIFARPATH + '/test_batch', mode='rb') as File:
@@ -67,16 +67,16 @@ resizedImage = tf.image.resize_images(features, (227, 227))
 
 N7 = AlexNet.AlexNetCIFAR10(resizedImage, trainedWeight)
 N7 = tf.stop_gradient(N7)
-Shape = (N7.get_shape().as_list()[-1], NumClass)
-W8 = tf.Variable(tf.truncated_normal(Shape, stddev=1e-2))
-B8 = tf.Variable(tf.zeros(NumClass))
-logits = tf.nn.xw_plus_b(N7, W8, B8)
+shape = (N7.get_shape().as_list()[-1], classCount)
+weight = tf.Variable(tf.truncated_normal(shape, stddev=1e-2))
+bias = tf.Variable(tf.zeros(classCount))
+logits = tf.nn.xw_plus_b(N7, weight, bias)
 
 
 crossEntropy = tf.nn.sparse_softmax_cross_entropy_with_logits(logits=logits, labels=labels)
 loss = tf.reduce_mean(crossEntropy)
 optimizer = tf.train.AdamOptimizer()
-train = optimizer.minimize(loss, var_list=[W8, B8])
+train = optimizer.minimize(loss, var_list=[weight, bias])
 predict = tf.arg_max(logits, 1)
 accuracy = tf.reduce_mean(tf.cast(tf.equal(predict, labels), tf.float32))
 
