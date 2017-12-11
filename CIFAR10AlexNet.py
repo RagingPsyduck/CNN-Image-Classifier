@@ -38,9 +38,6 @@ trainInput, trainLabel = shuffle(trainInput, trainLabel)
 testInput, testLabel = shuffle(testInput, testLabel)
 
 trainInput, XVal, trainLabel, YVal = train_test_split(trainInput, trainLabel, test_size=0.10, random_state=0)
-print('Training Data Randomized and Split for Validation')
-print('Training Data Size:' + str(trainInput.shape))
-print('Validation Data Size:' + str(XVal.shape))
 
 
 def evaluate(X, Y, Sess):
