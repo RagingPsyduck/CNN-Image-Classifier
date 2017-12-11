@@ -62,13 +62,12 @@ features = tf.placeholder(tf.float32, (None, 32, 32, 3))
 labels = tf.placeholder(tf.int64, None)
 resizedImage = tf.image.resize_images(features, (227, 227))
 
-N7 = AlexNet.AlexNetCIFAR10(resizedImage, trainedWeight)
-N7 = tf.stop_gradient(N7)
-shape = (N7.get_shape().as_list()[-1], classCount)
+x = AlexNet.AlexNetCIFAR10(resizedImage, trainedWeight)
+x = tf.stop_gradient(x)
+shape = (x.get_shape().as_list()[-1], classCount)
 weight = tf.Variable(tf.truncated_normal(shape, stddev=1e-2))
 bias = tf.Variable(tf.zeros(classCount))
-logits = tf.nn.xw_plus_b(N7, weight, bias)
-
+logits = tf.nn.xw_plus_b(x, weight, bias)
 
 crossEntropy = tf.nn.sparse_softmax_cross_entropy_with_logits(logits=logits, labels=labels)
 loss = tf.reduce_mean(crossEntropy)
