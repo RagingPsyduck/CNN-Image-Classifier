@@ -100,7 +100,7 @@ with tf.Session() as sess:
             sess.run(TrainOp, feed_dict={features: trainInput[Offset:End], labels: trainLabel[Offset:End]})
 
         ValLoss, ValAcc = evaluate(XVal, YVal, sess)
-        print("Epoch", step + 1)
-        print("Time: %.3f seconds" % (time.time() - T0))
-        print("Validation Loss =", ValLoss)
-        print("Validation Accuracy =", ValAcc)
+        print("Epoch {}, Accuracy {}".format(step + 1, ValAcc))
+        # print("Time: %.3f seconds" % (time.time() - T0))
+        # print("Validation Loss =", ValLoss)
+        # print("Validation Accuracy =", ValAcc)
