@@ -46,8 +46,8 @@ init = tf.global_variables_initializer()
 writer = tf.summary.FileWriter(FILEWRITER_PATH)
 
 with tf.name_scope('Accuracy'):
-    correctPrediction = tf.equal(tf.argmax(y_pred, 1), tf.argmax(y_true, 1))
-    accuracy = tf.reduce_mean(tf.cast(correctPrediction, tf.float32))
+    predict = tf.equal(tf.argmax(y_pred, 1), tf.argmax(y_true, 1))
+    accuracy = tf.reduce_mean(tf.cast(predict, tf.float32))
 
 tf.summary.scalar("accuracy", accuracy)
 tf.summary.scalar('cross_entropy', crossEntropy)
