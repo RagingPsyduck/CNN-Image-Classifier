@@ -67,7 +67,9 @@ x = tf.stop_gradient(x)
 shape = (x.get_shape().as_list()[-1], classCount)
 weight = tf.Variable(tf.truncated_normal(shape, stddev=1e-2))
 bias = tf.Variable(tf.zeros(classCount))
-logits = tf.nn.xw_plus_b(x, weight, bias)
+#logits = tf.nn.xw_plus_b(x, weight, bias)
+logits = tf.matmul(x, weight) + bias
+
 
 crossEntropy = tf.nn.sparse_softmax_cross_entropy_with_logits(logits=logits, labels=labels)
 loss = tf.reduce_mean(crossEntropy)
