@@ -67,7 +67,6 @@ x = tf.stop_gradient(x)
 shape = (x.get_shape().as_list()[-1], classCount)
 weight = tf.Variable(tf.truncated_normal(shape, stddev=1e-2))
 bias = tf.Variable(tf.zeros(classCount))
-#logits = tf.nn.xw_plus_b(x, weight, bias)
 y = tf.matmul(x, weight) + bias
 
 
