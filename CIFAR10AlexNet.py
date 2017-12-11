@@ -67,8 +67,8 @@ B8 = tf.Variable(tf.zeros(NumClass))
 Logits = tf.nn.xw_plus_b(N7, W8, B8)
 
 
-CrossEntropy = tf.nn.sparse_softmax_cross_entropy_with_logits(logits=Logits, labels=labels)
-LossOp = tf.reduce_mean(CrossEntropy)
+crossEntropy = tf.nn.sparse_softmax_cross_entropy_with_logits(logits=Logits, labels=labels)
+LossOp = tf.reduce_mean(crossEntropy)
 Opt = tf.train.AdamOptimizer()
 TrainOp = Opt.minimize(LossOp, var_list=[W8, B8])
 InitOp = tf.global_variables_initializer()
@@ -76,8 +76,17 @@ Preds = tf.arg_max(Logits, 1)
 AccuracyOp = tf.reduce_mean(tf.cast(tf.equal(Preds, labels), tf.float32))
 
 
-
-
+def evaluate(X, Y, Sess):
+    totalAcc = 0
+    totalLoss = 0
+    for Offset in range(0, X.shape[0], BatchSize):
+        End = Offset + BatchSize
+        XBatch = X[Offset:End]
+        YBatch = Y[Offset:End]
+        Loss, Acc = Sess.run([LossOp, AccuracyOp], feed_dict={features: XBatch, labels: YBatch})
+        totalLoss += (Loss * XBatch.shape[0])
+        totalAcc += (Acc * XBatch.shape[0])
+    return totalLoss / X.shape[0], totalAcc / X.shape[0]
 
 with tf.Session() as sess:
     sess.run(InitOp)
@@ -90,7 +99,7 @@ with tf.Session() as sess:
             sess.run(TrainOp, feed_dict={features: trainInput[Offset:End], labels: trainLabel[Offset:End]})
 
         # val_loss, val_acc = eval_on_data(XVal,YVal,sess)
-        ValLoss, ValAcc = AlexNet.evaluate(XVal, YVal, sess)
+        ValLoss, ValAcc = evaluate(XVal, YVal, sess)
         print("Epoch", step + 1)
         print("Time: %.3f seconds" % (time.time() - T0))
         print("Validation Loss =", ValLoss)

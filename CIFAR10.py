@@ -37,10 +37,10 @@ conv2Flat = tf.reshape(conv2Pooling, [-1, 8 * 8 * 64])
 fullConnectedLayer = tf.nn.relu(CIFARHelper.normalFullLayer(conv2Flat, 1024))
 full_one_dropout = tf.nn.dropout(fullConnectedLayer, keep_prob=hold_prob)
 y_pred = CIFARHelper.normalFullLayer(full_one_dropout, 10)
-cross_entropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=y_true, logits=y_pred))
+crossEntropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=y_true, logits=y_pred))
 optimizer = tf.train.AdamOptimizer(learning_rate=LEARNING_RATE)
 
-train = optimizer.minimize(cross_entropy)
+train = optimizer.minimize(crossEntropy)
 init = tf.global_variables_initializer()
 
 writer = tf.summary.FileWriter(FILEWRITER_PATH)
@@ -50,7 +50,7 @@ with tf.name_scope('Accuracy'):
     accuracy = tf.reduce_mean(tf.cast(correctPrediction, tf.float32))
 
 tf.summary.scalar("accuracy", accuracy)
-tf.summary.scalar('cross_entropy', cross_entropy)
+tf.summary.scalar('cross_entropy', crossEntropy)
 mergedSummary = tf.summary.merge_all()
 
 with tf.Session() as sess:
