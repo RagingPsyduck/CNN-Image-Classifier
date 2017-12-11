@@ -96,3 +96,17 @@ def AlexNetCIFAR10(X,preTrainedData):
 
     # Return Last Layer
     return N7
+
+def evaluate(X, Y, Sess):
+    totalAcc = 0
+    totalLoss = 0
+    for Offset in range(0, X.shape[0], BatchSize):
+        End = Offset + BatchSize
+        XBatch = X[Offset:End]
+        YBatch = Y[Offset:End]
+        Loss, Acc = Sess.run([LossOp, AccuracyOp], feed_dict={features: XBatch, labels: YBatch})
+        totalLoss += (Loss * XBatch.shape[0])
+        totalAcc += (Acc * XBatch.shape[0])
+
+    # Return Loss and Accuracy
+    return totalLoss / X.shape[0], totalAcc / X.shape[0]

@@ -9,49 +9,46 @@ from sklearn.model_selection import train_test_split
 LabelNames = ['Airplane', 'Automobile', 'Bird', 'Cat', 'Deer', 'Dog', 'Frog', 'Horse', 'Ship', 'Truck']
 CIFARPATH = 'cifar-10-batches-py'
 
-numOfBatches = 5
-# Initiate Training Data
-XTrain, YTrain = [], []
+totalBatchCount = 5
 
-# Load Batch Data in Loops
-for BatchID in range(1, numOfBatches + 1):
-    with open(CIFARPATH + '/data_batch_' + str(BatchID), mode='rb') as File:
+trainInput, trainLabel = [], []
+
+for i in range(1, totalBatchCount + 1):
+    with open(CIFARPATH + '/data_batch_' + str(i), mode='rb') as File:
         Batch = pickle.load(File, encoding='latin1')
-    if (BatchID == 1):
-        XTrain = Batch['data'].reshape((len(Batch['data']), 3, 32, 32)).transpose(0, 2, 3, 1)
-        YTrain = Batch['labels']
+    if i == 1:
+        trainInput = Batch['data'].reshape((len(Batch['data']), 3, 32, 32)).transpose(0, 2, 3, 1)
+        trainLabel = Batch['labels']
     else:
-        XTrainTemp, YTrainTemp = [], []
-        XTrainTemp = Batch['data'].reshape((len(Batch['data']), 3, 32, 32)).transpose(0, 2, 3, 1)
-        YTrainTemp = Batch['labels']
-        XTrain = np.concatenate((XTrain, XTrainTemp), axis=0)
-        YTrain = np.concatenate((YTrain, YTrainTemp), axis=0)
+        trainInputTemp, trainLabelTemp = [], []
+        trainInputTemp = Batch['data'].reshape((len(Batch['data']), 3, 32, 32)).transpose(0, 2, 3, 1)
+        trainLabelTemp = Batch['labels']
+        trainInput = np.concatenate((trainInput, trainInputTemp), axis=0)
+        trainLabel = np.concatenate((trainLabel, trainLabelTemp), axis=0)
 
-# Assert to Ensure Equal Size of Input & Output Data
-assert (len(XTrain) == len(YTrain))
 
-# Number of Unique Classes and Labels
-NumClass = len(set(YTrain))
+assert (len(trainInput) == len(trainLabel))
+NumClass = len(set(trainLabel))
 
 # Print Data Characteristics
-print("Training Set:{} Samples".format(len(XTrain)))
-print("Image Shape:{}".format(XTrain[0].shape))
-print('Number of Classes: {}'.format(dict(zip(*np.unique(YTrain, return_counts=True)))))
-print('First 20 Labels: {}'.format(YTrain[:20]))
+print("Training Set:{} Samples".format(len(trainInput)))
+print("Image Shape:{}".format(trainInput[0].shape))
+print('Number of Classes: {}'.format(dict(zip(*np.unique(trainLabel, return_counts=True)))))
+print('First 20 Labels: {}'.format(trainLabel[:20]))
 
 with open(CIFARPATH + '/test_batch', mode='rb') as File:
     Batch = pickle.load(File, encoding='latin1')
 # load the training data
-XTest = Batch['data'].reshape((len(Batch['data']), 3, 32, 32)).transpose(0, 2, 3, 1)
-YTest = Batch['labels']
+testInput = Batch['data'].reshape((len(Batch['data']), 3, 32, 32)).transpose(0, 2, 3, 1)
+testLabel = Batch['labels']
 
-XTrain, YTrain = shuffle(XTrain, YTrain)
-XTest, YTest = shuffle(XTest, YTest)
-print('Training and Testing Data Shuffled')
+trainInput, trainLabel = shuffle(trainInput, trainLabel)
+testInput, testLabel = shuffle(testInput, testLabel)
 
-XTrain, XVal, YTrain, YVal = train_test_split(XTrain, YTrain, test_size=0.10, random_state=0)
+
+trainInput, XVal, trainLabel, YVal = train_test_split(trainInput, trainLabel, test_size=0.10, random_state=0)
 print('Training Data Randomized and Split for Validation')
-print('Training Data Size:' + str(XTrain.shape))
+print('Training Data Size:' + str(trainInput.shape))
 print('Validation Data Size:' + str(XVal.shape))
 
 Epochs = 20
@@ -59,13 +56,12 @@ BatchSize = 128
 
 preTrainedData = np.load('bvlc_alexnet.npy', encoding='bytes').item()
 
-# DEFINE ARCHITECTURE
-# Set a Placeholder
-Features = tf.placeholder(tf.float32, (None, 32, 32, 3))
-Labels = tf.placeholder(tf.int64, None)
-Resized = tf.image.resize_images(Features, (227, 227))
 
-N7 = AlexNet.AlexNetCIFAR10(Resized, preTrainedData)
+features = tf.placeholder(tf.float32, (None, 32, 32, 3))
+labels = tf.placeholder(tf.int64, None)
+resizedImage = tf.image.resize_images(features, (227, 227))
+
+N7 = AlexNet.AlexNetCIFAR10(resizedImage, preTrainedData)
 N7 = tf.stop_gradient(N7)
 Shape = (N7.get_shape().as_list()[-1], NumClass)
 W8 = tf.Variable(tf.truncated_normal(Shape, stddev=1e-2))
@@ -74,45 +70,31 @@ Logits = tf.nn.xw_plus_b(N7, W8, B8)
 
 # DEFINE ALEXNET ARCHITECTURE
 # Set Training Pipeline
-CrossEntropy = tf.nn.sparse_softmax_cross_entropy_with_logits(logits=Logits, labels=Labels)
+CrossEntropy = tf.nn.sparse_softmax_cross_entropy_with_logits(logits=Logits, labels=labels)
 LossOp = tf.reduce_mean(CrossEntropy)
 Opt = tf.train.AdamOptimizer()
 TrainOp = Opt.minimize(LossOp, var_list=[W8, B8])
 InitOp = tf.global_variables_initializer()
 Preds = tf.arg_max(Logits, 1)
-AccuracyOp = tf.reduce_mean(tf.cast(tf.equal(Preds, Labels), tf.float32))
+AccuracyOp = tf.reduce_mean(tf.cast(tf.equal(Preds, labels), tf.float32))
 
 
-# MODEL EVALUATION
-# Initialize Evaluation
-def Evaluate(X, Y, Sess):
-    TotalAcc = 0
-    TotalLoss = 0
-    for Offset in range(0, X.shape[0], BatchSize):
-        End = Offset + BatchSize
-        XBatch = X[Offset:End]
-        YBatch = Y[Offset:End]
-        Loss, Acc = Sess.run([LossOp, AccuracyOp], feed_dict={Features: XBatch, Labels: YBatch})
-        TotalLoss += (Loss * XBatch.shape[0])
-        TotalAcc += (Acc * XBatch.shape[0])
 
-    # Return Loss and Accuracy
-    return TotalLoss / X.shape[0], TotalAcc / X.shape[0]
 
 
 with tf.Session() as SessMajor:
     SessMajor.run(InitOp)
 
-    for i in range(Epochs):
-        XTrain, YTrain = shuffle(XTrain, YTrain)
+    for step in range(Epochs):
+        trainInput, trainLabel = shuffle(trainInput, trainLabel)
         T0 = time.time()
-        for Offset in range(0, XTrain.shape[0], BatchSize):
+        for Offset in range(0, trainInput.shape[0], BatchSize):
             End = Offset + BatchSize
-            SessMajor.run(TrainOp, feed_dict={Features: XTrain[Offset:End], Labels: YTrain[Offset:End]})
+            SessMajor.run(TrainOp, feed_dict={features: trainInput[Offset:End], labels: trainLabel[Offset:End]})
 
         # val_loss, val_acc = eval_on_data(XVal,YVal,sess)
-        ValLoss, ValAcc = Evaluate(XVal, YVal, SessMajor)
-        print("Epoch", i + 1)
+        ValLoss, ValAcc = AlexNet.evaluate(XVal, YVal, SessMajor)
+        print("Epoch", step + 1)
         print("Time: %.3f seconds" % (time.time() - T0))
         print("Validation Loss =", ValLoss)
         print("Validation Accuracy =", ValAcc)
