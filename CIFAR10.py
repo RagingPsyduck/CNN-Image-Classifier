@@ -42,7 +42,6 @@ crossEntropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=y_t
 optimizer = tf.train.AdamOptimizer(learning_rate=LEARNING_RATE)
 
 train = optimizer.minimize(crossEntropy)
-init = tf.global_variables_initializer()
 
 writer = tf.summary.FileWriter(FILEWRITER_PATH)
 
