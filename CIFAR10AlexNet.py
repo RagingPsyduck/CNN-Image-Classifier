@@ -45,7 +45,6 @@ testLabel = Batch['labels']
 trainInput, trainLabel = shuffle(trainInput, trainLabel)
 testInput, testLabel = shuffle(testInput, testLabel)
 
-
 trainInput, XVal, trainLabel, YVal = train_test_split(trainInput, trainLabel, test_size=0.10, random_state=0)
 print('Training Data Randomized and Split for Validation')
 print('Training Data Size:' + str(trainInput.shape))
@@ -55,7 +54,6 @@ Epochs = 20
 BatchSize = 128
 
 preTrainedData = np.load('bvlc_alexnet.npy', encoding='bytes').item()
-
 
 features = tf.placeholder(tf.float32, (None, 32, 32, 3))
 labels = tf.placeholder(tf.int64, None)
@@ -68,8 +66,7 @@ W8 = tf.Variable(tf.truncated_normal(Shape, stddev=1e-2))
 B8 = tf.Variable(tf.zeros(NumClass))
 Logits = tf.nn.xw_plus_b(N7, W8, B8)
 
-# DEFINE ALEXNET ARCHITECTURE
-# Set Training Pipeline
+
 CrossEntropy = tf.nn.sparse_softmax_cross_entropy_with_logits(logits=Logits, labels=labels)
 LossOp = tf.reduce_mean(CrossEntropy)
 Opt = tf.train.AdamOptimizer()
@@ -82,18 +79,18 @@ AccuracyOp = tf.reduce_mean(tf.cast(tf.equal(Preds, labels), tf.float32))
 
 
 
-with tf.Session() as SessMajor:
-    SessMajor.run(InitOp)
+with tf.Session() as sess:
+    sess.run(InitOp)
 
     for step in range(Epochs):
         trainInput, trainLabel = shuffle(trainInput, trainLabel)
         T0 = time.time()
         for Offset in range(0, trainInput.shape[0], BatchSize):
             End = Offset + BatchSize
-            SessMajor.run(TrainOp, feed_dict={features: trainInput[Offset:End], labels: trainLabel[Offset:End]})
+            sess.run(TrainOp, feed_dict={features: trainInput[Offset:End], labels: trainLabel[Offset:End]})
 
         # val_loss, val_acc = eval_on_data(XVal,YVal,sess)
-        ValLoss, ValAcc = AlexNet.evaluate(XVal, YVal, SessMajor)
+        ValLoss, ValAcc = AlexNet.evaluate(XVal, YVal, sess)
         print("Epoch", step + 1)
         print("Time: %.3f seconds" % (time.time() - T0))
         print("Validation Loss =", ValLoss)
