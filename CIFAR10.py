@@ -4,7 +4,7 @@ import CIFARHelper as CIFARHelper
 LEARNING_RATE = 0.001 # 0.001
 STEP = 5000 # 5000
 BATCH_SIZE = 100
-DROPOUT = 0.5
+DROPOUT = 0.5 #0.5
 
 
 CIFARPATH = 'cifar-10-batches-py/'
