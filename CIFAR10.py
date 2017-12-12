@@ -4,6 +4,7 @@ import CIFARHelper as CIFARHelper
 LEARNING_RATE = 0.001 # 0.001
 STEP = 5000 # 5000
 BATCH_SIZE = 100
+DROPOUT = 0.5
 
 CIFARPATH = 'cifar-10-batches-py/'
 FILEWRITER_PATH = "./cifarOutput/tensorboard"
@@ -58,7 +59,7 @@ with tf.Session() as sess:
     writer.add_graph(sess.graph)
     for i in range(STEP):
         batch = ch.next_batch(BATCH_SIZE)
-        sess.run(train, feed_dict={x: batch[0], y_true: batch[1], hold_prob: 0.5})
+        sess.run(train, feed_dict={x: batch[0], y_true: batch[1], hold_prob: 1 - DROPOUT})
         if i % 5 == 0:
             summary, acc = sess.run([mergedSummary, accuracy], feed_dict={x: ch.test_images, y_true: ch.test_labels, hold_prob: 1.0})
             writer.add_summary(summary, i)
