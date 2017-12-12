@@ -3,7 +3,7 @@ import CIFARHelper as CIFARHelper
 
 LEARNING_RATE = 0.001 # 0.001
 STEP = 5000 # 5000
-BATCH_SIZE = 100 #100
+BATCH_SIZE = 2500 #100
 
 CIFARPATH = 'cifar-10-batches-py/'
 FILEWRITER_PATH = "./cifarOutput/tensorboard"
