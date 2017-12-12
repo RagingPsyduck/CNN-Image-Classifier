@@ -3,7 +3,9 @@ import CIFARHelper as CIFARHelper
 
 LEARNING_RATE = 0.001 # 0.001
 STEP = 5000 # 5000
-BATCH_SIZE = 2500 #100
+BATCH_SIZE = 100
+DROPOUT = 0.5
+
 
 CIFARPATH = 'cifar-10-batches-py/'
 FILEWRITER_PATH = "./cifarOutput/tensorboard"
@@ -36,9 +38,9 @@ conv2 = CIFARHelper.convLayer(conv1Pooling, shape=[4, 4, 32, 64])
 conv2Pooling = CIFARHelper.pool2by2(conv2)
 conv2Flat = tf.reshape(conv2Pooling, [-1, 8 * 8 * 64])
 fullConnectedLayer = tf.nn.relu(CIFARHelper.normalFullLayer(conv2Flat, 1024))
-full_one_dropout = tf.nn.dropout(fullConnectedLayer, keep_prob=hold_prob)
-y_pred = CIFARHelper.normalFullLayer(full_one_dropout, 10)
-crossEntropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=y_true, logits=y_pred))
+layerAfterDropout = tf.nn.dropout(fullConnectedLayer, keep_prob=hold_prob)
+y = CIFARHelper.normalFullLayer(layerAfterDropout, 10)
+crossEntropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=y_true, logits=y))
 optimizer = tf.train.AdamOptimizer(learning_rate=LEARNING_RATE)
 
 train = optimizer.minimize(crossEntropy)
@@ -46,7 +48,7 @@ train = optimizer.minimize(crossEntropy)
 writer = tf.summary.FileWriter(FILEWRITER_PATH)
 
 with tf.name_scope('Accuracy'):
-    predict = tf.equal(tf.argmax(y_pred, 1), tf.argmax(y_true, 1))
+    predict = tf.equal(tf.argmax(y, 1), tf.argmax(y_true, 1))
     accuracy = tf.reduce_mean(tf.cast(predict, tf.float32))
 
 tf.summary.scalar("accuracy", accuracy)
@@ -58,7 +60,7 @@ with tf.Session() as sess:
     writer.add_graph(sess.graph)
     for i in range(STEP):
         batch = ch.next_batch(BATCH_SIZE)
-        sess.run(train, feed_dict={x: batch[0], y_true: batch[1], hold_prob: 0.5})
+        sess.run(train, feed_dict={x: batch[0], y_true: batch[1], hold_prob: 1 - DROPOUT})
         if i % 5 == 0:
             summary, acc = sess.run([mergedSummary, accuracy], feed_dict={x: ch.test_images, y_true: ch.test_labels, hold_prob: 1.0})
             writer.add_summary(summary, i)
