@@ -61,10 +61,12 @@ initWeight = np.load('bvlc_alexnet.npy',encoding='bytes').item()
 features = tf.placeholder(tf.float32, (None, 32, 32, 3))
 labels = tf.placeholder(tf.int64, None)
 resize = tf.image.resize_images(features, (227, 227))
+dropoutProb = tf.placeholder(tf.float32)
+
 
 lastLayer = AlexNet.train(resize, initWeight)
 lastLayer = tf.stop_gradient(lastLayer)
-lastLayerAfterDropout = tf.nn.dropout(lastLayer,keep_prob=DROPOUT)
+lastLayerAfterDropout = tf.nn.dropout(lastLayer,keep_prob=dropoutProb)
 
 shape = (lastLayer.get_shape().as_list()[-1], classCount)
 weight = tf.Variable(tf.truncated_normal(shape, stddev=1e-2))
@@ -86,7 +88,7 @@ with tf.Session() as sess:
         trainInput, trainLabel = shuffle(trainInput, trainLabel)
         for offset in range(0, trainInput.shape[0], BATCH_SIZE):
             end = offset + BATCH_SIZE
-            sess.run(train, feed_dict={features: trainInput[offset:end], labels: trainLabel[offset:end]})
+            sess.run(train, feed_dict={features: trainInput[offset:end], labels: trainLabel[offset:end],dropoutProb: 1 - DROPOUT})
 
         _, acc = evaluate(XVal, YVal, sess)
         print("Epoch {}, Accuracy {}".format(step + 1, acc))
