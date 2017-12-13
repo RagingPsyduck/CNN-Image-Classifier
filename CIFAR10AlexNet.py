@@ -7,6 +7,9 @@ from sklearn.model_selection import train_test_split
 
 LabelNames = ['Airplane', 'Automobile', 'Bird', 'Cat', 'Deer', 'Dog', 'Frog', 'Horse', 'Ship', 'Truck']
 CIFARPATH = 'cifar-10-batches-py'
+FILEWRITER_PATH = "./cifarOutput/tensorboard"
+CHECKPOINT_PATH = "./cifarOutput/checkpoints"
+
 trainInput, trainLabel = [], []
 EPOCH = 20
 BATCH_SIZE = 100
@@ -75,7 +78,14 @@ loss = tf.reduce_mean(crossEntropy)
 optimizer = tf.train.AdamOptimizer()
 train = optimizer.minimize(loss, var_list=[weight, bias])
 predict = tf.arg_max(y, 1)
-accuracy = tf.reduce_mean(tf.cast(tf.equal(predict, labels), tf.float32))
+
+
+writer = tf.summary.FileWriter(FILEWRITER_PATH)
+with tf.name_scope('Accuracy'):
+    accuracy = tf.reduce_mean(tf.cast(tf.equal(predict, labels), tf.float32))
+
+tf.summary.scalar("accuracy", accuracy)
+mergedSummary = tf.summary.merge_all()
 
 with tf.Session() as sess:
     sess.run(tf.global_variables_initializer())
@@ -84,7 +94,7 @@ with tf.Session() as sess:
         trainInput, trainLabel = shuffle(trainInput, trainLabel)
         for offset in range(0, trainInput.shape[0], BATCH_SIZE):
             end = offset + BATCH_SIZE
-            sess.run(train, feed_dict={features: trainInput[offset:end], labels: trainLabel[offset:end]})
+            summary, acc = sess.run(train, feed_dict={features: trainInput[offset:end], labels: trainLabel[offset:end]})
 
         _, acc = evaluate(XVal, YVal, sess)
         print("Epoch {}, Accuracy {}".format(step + 1, acc))
