@@ -6,7 +6,7 @@ import AlexNet as AlexNet
 from sklearn.model_selection import train_test_split
 from random import randint
 
-LabelNames = ['Airplane', 'Automobile', 'Bird', 'Cat', 'Deer', 'Dog', 'Frog', 'Horse', 'Ship', 'Truck']
+LabelNames = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10']
 CIFARPATH = 'cifar-10-batches-py'
 FILEWRITER_PATH = "./cifarOutput/tensorboard"
 CHECKPOINT_PATH = "./cifarOutput/checkpoints"
@@ -33,10 +33,8 @@ for i in range(1, 6):
 
 classCount = len(set(trainLabel))
 
-
 with open(CIFARPATH + '/test_batch', mode='rb') as File:
     Batch = pickle.load(File, encoding='latin1')
-
 
 testInput = Batch['data'].reshape((len(Batch['data']), 3, 32, 32)).transpose(0, 2, 3, 1)
 testLabel = Batch['labels']
