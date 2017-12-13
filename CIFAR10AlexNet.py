@@ -94,7 +94,7 @@ with tf.Session() as sess:
         trainInput, trainLabel = shuffle(trainInput, trainLabel)
         for offset in range(0, trainInput.shape[0], BATCH_SIZE):
             end = offset + BATCH_SIZE
-            summary, acc = sess.run(train, feed_dict={features: trainInput[offset:end], labels: trainLabel[offset:end]})
+            summary, acc = sess.run([mergedSummary, accuracy], train, feed_dict={features: trainInput[offset:end], labels: trainLabel[offset:end]})
 
         _, acc = evaluate(XVal, YVal, sess)
         print("Epoch {}, Accuracy {}".format(step + 1, acc))
