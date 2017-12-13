@@ -9,8 +9,8 @@ LabelNames = ['Airplane', 'Automobile', 'Bird', 'Cat', 'Deer', 'Dog', 'Frog', 'H
 CIFARPATH = 'cifar-10-batches-py'
 trainInput, trainLabel = [], []
 EPOCH = 20
-BATCH_SIZE = 128
-
+BATCH_SIZE = 100
+DROPOUT = 0.5 #0.5
 
 for i in range(1, 6):
     with open(CIFARPATH + '/data_batch_' + str(i), mode='rb') as File:
@@ -64,10 +64,12 @@ resize = tf.image.resize_images(features, (227, 227))
 
 lastLayer = AlexNet.train(resize, initWeight)
 lastLayer = tf.stop_gradient(lastLayer)
+lastLayerAfterDropout = tf.nn.dropout(lastLayer,keep_prob=DROPOUT)
+
 shape = (lastLayer.get_shape().as_list()[-1], classCount)
 weight = tf.Variable(tf.truncated_normal(shape, stddev=1e-2))
 bias = tf.Variable(tf.zeros(classCount))
-y = tf.matmul(lastLayer, weight) + bias
+y = tf.matmul(lastLayerAfterDropout, weight) + bias
 
 
 crossEntropy = tf.nn.sparse_softmax_cross_entropy_with_logits(logits=y, labels=labels)
