@@ -8,7 +8,6 @@ from sklearn.model_selection import train_test_split
 LabelNames = ['Airplane', 'Automobile', 'Bird', 'Cat', 'Deer', 'Dog', 'Frog', 'Horse', 'Ship', 'Truck']
 CIFARPATH = 'cifar-10-batches-py'
 trainInput, trainLabel = [], []
-
 EPOCH = 20
 BATCH_SIZE = 128
 
@@ -54,18 +53,16 @@ def evaluate(X, Y, Sess):
         Loss, Acc = Sess.run([loss, accuracy], feed_dict={features: XBatch, labels: YBatch})
         totalLoss += (Loss * XBatch.shape[0])
         totalAcc += (Acc * XBatch.shape[0])
-
     return totalLoss / X.shape[0], totalAcc / X.shape[0]
 
 
-
-trainedWeight = np.load('bvlc_alexnet.npy', encoding='bytes').item()
+initWeight = np.load('bvlc_alexnet.npy',encoding='bytes').item()
 
 features = tf.placeholder(tf.float32, (None, 32, 32, 3))
 labels = tf.placeholder(tf.int64, None)
 resize = tf.image.resize_images(features, (227, 227))
 
-x = AlexNet.train(resize, trainedWeight)
+x = AlexNet.train(resize, initWeight)
 x = tf.stop_gradient(x)
 shape = (x.get_shape().as_list()[-1], classCount)
 weight = tf.Variable(tf.truncated_normal(shape, stddev=1e-2))
