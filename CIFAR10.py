@@ -28,9 +28,8 @@ ch = CIFARHelper.CifarHelper(batch1=batch1,batch2=batch2,batch3=batch3,batch4=ba
 ch.set_up_images()
 
 x = tf.placeholder(tf.float32, shape=[None, 32, 32, 3])
-y_true = tf.placeholder(tf.float32, shape=[None, 10])
-# Dropout
-hold_prob = tf.placeholder(tf.float32)
+trueOutput = tf.placeholder(tf.float32, shape=[None, 10])
+dropoutProb = tf.placeholder(tf.float32)
 
 conv1 = CIFARHelper.convLayer(x, shape=[4, 4, 3, 32])
 conv1Pooling = CIFARHelper.pool2by2(conv1)
@@ -38,9 +37,9 @@ conv2 = CIFARHelper.convLayer(conv1Pooling, shape=[4, 4, 32, 64])
 conv2Pooling = CIFARHelper.pool2by2(conv2)
 conv2Flat = tf.reshape(conv2Pooling, [-1, 8 * 8 * 64])
 fullConnectedLayer = tf.nn.relu(CIFARHelper.normalFullLayer(conv2Flat, 1024))
-layerAfterDropout = tf.nn.dropout(fullConnectedLayer, keep_prob=hold_prob)
+layerAfterDropout = tf.nn.dropout(fullConnectedLayer, keep_prob=dropoutProb)
 y = CIFARHelper.normalFullLayer(layerAfterDropout, 10)
-crossEntropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=y_true, logits=y))
+crossEntropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=trueOutput, logits=y))
 optimizer = tf.train.AdamOptimizer(learning_rate=LEARNING_RATE)
 
 train = optimizer.minimize(crossEntropy)
@@ -48,7 +47,7 @@ train = optimizer.minimize(crossEntropy)
 writer = tf.summary.FileWriter(FILEWRITER_PATH)
 
 with tf.name_scope('Accuracy'):
-    predict = tf.equal(tf.argmax(y, 1), tf.argmax(y_true, 1))
+    predict = tf.equal(tf.argmax(y, 1), tf.argmax(trueOutput, 1))
     accuracy = tf.reduce_mean(tf.cast(predict, tf.float32))
 
 tf.summary.scalar("accuracy", accuracy)
@@ -60,8 +59,8 @@ with tf.Session() as sess:
     writer.add_graph(sess.graph)
     for i in range(STEP):
         batch = ch.next_batch(BATCH_SIZE)
-        sess.run(train, feed_dict={x: batch[0], y_true: batch[1], hold_prob: 1 - DROPOUT})
+        sess.run(train, feed_dict={x: batch[0], trueOutput: batch[1], dropoutProb: 1 - DROPOUT})
         if i % 5 == 0:
-            summary, acc = sess.run([mergedSummary, accuracy], feed_dict={x: ch.test_images, y_true: ch.test_labels, hold_prob: 1.0})
+            summary, acc = sess.run([mergedSummary, accuracy], feed_dict={x: ch.test_images, trueOutput: ch.test_labels, dropoutProb: 1.0})
             writer.add_summary(summary, i)
-            print('Step {} , Accuracy is:{:.4f}'.format(i,sess.run(accuracy, feed_dict={x: ch.test_images, y_true: ch.test_labels, hold_prob: 1.0})))
+            print('Step {} , Accuracy is:{:.4f}'.format(i, sess.run(accuracy, feed_dict={x: ch.test_images, trueOutput: ch.test_labels, dropoutProb: 1.0})))
