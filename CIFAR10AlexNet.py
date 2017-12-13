@@ -62,12 +62,12 @@ features = tf.placeholder(tf.float32, (None, 32, 32, 3))
 labels = tf.placeholder(tf.int64, None)
 resize = tf.image.resize_images(features, (227, 227))
 
-x = AlexNet.train(resize, initWeight)
-x = tf.stop_gradient(x)
-shape = (x.get_shape().as_list()[-1], classCount)
+lastLayer = AlexNet.train(resize, initWeight)
+lastLayer = tf.stop_gradient(lastLayer)
+shape = (lastLayer.get_shape().as_list()[-1], classCount)
 weight = tf.Variable(tf.truncated_normal(shape, stddev=1e-2))
 bias = tf.Variable(tf.zeros(classCount))
-y = tf.matmul(x, weight) + bias
+y = tf.matmul(lastLayer, weight) + bias
 
 
 crossEntropy = tf.nn.sparse_softmax_cross_entropy_with_logits(logits=y, labels=labels)
