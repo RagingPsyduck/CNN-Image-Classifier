@@ -15,6 +15,7 @@ trainInput, trainLabel = [], []
 LEARNING_RATE = 0.001
 EPOCH = 20
 BATCH_SIZE = 200
+TEST_SIZE = 100
 DROPOUT = 0.5 #0.5
 
 for i in range(1, 6):
@@ -75,9 +76,9 @@ with tf.Session() as sess:
         trainInput, trainLabel = shuffle(trainInput, trainLabel)
         randStart = randint(0,4)
         randStart = randStart * 100
-        summary, acc,_ = sess.run([mergedSummary, accuracy, train],feed_dict={features: testInput[randStart:randStart+100], labels: testLabel[randStart:randStart+100]})
+        summary, acc,_ = sess.run([mergedSummary, accuracy, train],feed_dict={features: testInput[randStart:randStart+TEST_SIZE], labels: testLabel[randStart:randStart+TEST_SIZE]})
         print("Epoch {}, Accuracy {}".format(step + 1, acc))
         writer.add_summary(summary, step)
-        for offset in range(0, trainInput.shape[0], BATCH_SIZE):
-            end = offset + BATCH_SIZE
-            sess.run(train, feed_dict={features: trainInput[offset:end], labels: trainLabel[offset:end]})
+        for start in range(0, trainInput.shape[0], BATCH_SIZE):
+            end = start + BATCH_SIZE
+            sess.run(train, feed_dict={features: trainInput[start:end], labels: trainLabel[start:end]})
