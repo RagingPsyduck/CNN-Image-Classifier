@@ -4,6 +4,7 @@ from sklearn.utils import shuffle
 import tensorflow as tf
 import AlexNet as AlexNet
 from sklearn.model_selection import train_test_split
+from random import randint
 
 LabelNames = ['Airplane', 'Automobile', 'Bird', 'Cat', 'Deer', 'Dog', 'Frog', 'Horse', 'Ship', 'Truck']
 CIFARPATH = 'cifar-10-batches-py'
@@ -11,8 +12,9 @@ FILEWRITER_PATH = "./cifarOutput/tensorboard"
 CHECKPOINT_PATH = "./cifarOutput/checkpoints"
 
 trainInput, trainLabel = [], []
+LEARNING_RATE = 0.001
 EPOCH = 20
-BATCH_SIZE = 100
+BATCH_SIZE = 200
 DROPOUT = 0.5 #0.5
 
 for i in range(1, 6):
@@ -28,8 +30,6 @@ for i in range(1, 6):
         trainInput = np.concatenate((trainInput, trainInputTemp), axis=0)
         trainLabel = np.concatenate((trainLabel, trainLabelTemp), axis=0)
 
-
-assert (len(trainInput) == len(trainLabel))
 classCount = len(set(trainLabel))
 
 
@@ -39,32 +39,15 @@ with open(CIFARPATH + '/test_batch', mode='rb') as File:
 
 testInput = Batch['data'].reshape((len(Batch['data']), 3, 32, 32)).transpose(0, 2, 3, 1)
 testLabel = Batch['labels']
-
 trainInput, trainLabel = shuffle(trainInput, trainLabel)
 testInput, testLabel = shuffle(testInput, testLabel)
-
 trainInput, XVal, trainLabel, YVal = train_test_split(trainInput, trainLabel, test_size=0.10, random_state=0)
 
 
-def evaluate(X, Y, Sess):
-    totalAcc = 0
-    totalLoss = 0
-    for Offset in range(0, X.shape[0], BATCH_SIZE):
-        End = Offset + BATCH_SIZE
-        XBatch = X[Offset:End]
-        YBatch = Y[Offset:End]
-        Loss, Acc = Sess.run([loss, accuracy], feed_dict={features: XBatch, labels: YBatch})
-        totalLoss += (Loss * XBatch.shape[0])
-        totalAcc += (Acc * XBatch.shape[0])
-    return totalLoss / X.shape[0], totalAcc / X.shape[0]
-
-
 initWeight = np.load('bvlc_alexnet.npy',encoding='bytes').item()
-
 features = tf.placeholder(tf.float32, (None, 32, 32, 3))
 labels = tf.placeholder(tf.int64, None)
 resize = tf.image.resize_images(features, (227, 227))
-
 lastLayer = AlexNet.train(resize, initWeight)
 lastLayer = tf.stop_gradient(lastLayer)
 shape = (lastLayer.get_shape().as_list()[-1], classCount)
@@ -72,10 +55,9 @@ weight = tf.Variable(tf.truncated_normal(shape, stddev=1e-2))
 bias = tf.Variable(tf.zeros(classCount))
 y = tf.matmul(lastLayer, weight) + bias
 
-
 crossEntropy = tf.nn.sparse_softmax_cross_entropy_with_logits(logits=y, labels=labels)
 loss = tf.reduce_mean(crossEntropy)
-optimizer = tf.train.AdamOptimizer()
+optimizer = tf.train.AdamOptimizer(learning_rate=LEARNING_RATE)
 train = optimizer.minimize(loss, var_list=[weight, bias])
 predict = tf.arg_max(y, 1)
 
@@ -89,12 +71,13 @@ mergedSummary = tf.summary.merge_all()
 
 with tf.Session() as sess:
     sess.run(tf.global_variables_initializer())
-
     for step in range(EPOCH):
         trainInput, trainLabel = shuffle(trainInput, trainLabel)
+        randStart = randint(0,4)
+        randStart = randStart * 100
+        summary, acc,_ = sess.run([mergedSummary, accuracy, train],feed_dict={features: testInput[randStart:randStart+100], labels: testLabel[randStart:randStart+100]})
+        print("Epoch {}, Accuracy {}".format(step + 1, acc))
+        writer.add_summary(summary, step)
         for offset in range(0, trainInput.shape[0], BATCH_SIZE):
             end = offset + BATCH_SIZE
-            summary, acc = sess.run([mergedSummary, accuracy], train, feed_dict={features: trainInput[offset:end], labels: trainLabel[offset:end]})
-
-        _, acc = evaluate(XVal, YVal, sess)
-        print("Epoch {}, Accuracy {}".format(step + 1, acc))
+            sess.run(train, feed_dict={features: trainInput[offset:end], labels: trainLabel[offset:end]})
