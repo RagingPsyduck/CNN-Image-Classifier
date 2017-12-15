@@ -16,7 +16,6 @@ mkdir cifarOuput
 cd cifarOuput
 mkdir checkpoints
 mkdir tensorboard
-
 ```
 
 ### 2.Training
