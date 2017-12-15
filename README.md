@@ -2,7 +2,7 @@
 
 ### 1.Prerequisite
 
-clone repo
+Clone repo
 
 ```
 git clone https://github.com/RagingPsyduck/CNN-Image-Classifier.git
