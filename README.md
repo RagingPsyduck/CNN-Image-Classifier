@@ -2,14 +2,20 @@
 
 ### 1.Prerequisite
 
-##### Download files
+clone repo
+
+```
+git clone https://github.com/RagingPsyduck/CNN-Image-Classifier.git
+```
+
+Download files
 
 1. Image set : [CIFAR-10](https://www.cs.toronto.edu/~kriz/cifar.html)
 2. The weights for AlexNet : [bvlc_alexnet.npy](https://www.cs.toronto.edu/~guerzhoy/tf_alexnet/)
 
 Put these twos file into the work directory
 
-##### Create Directory
+Create Directory
 
 ```
 mkdir cifarOuput
