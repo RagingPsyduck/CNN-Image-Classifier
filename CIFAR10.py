@@ -25,7 +25,7 @@ batch5 = inputs[5]
 testBatch = inputs[6]
 
 ch = CIFARHelper.CifarHelper(batch1=batch1,batch2=batch2,batch3=batch3,batch4=batch4,batch5=batch5,testBatch=testBatch)
-ch.set_up_images()
+ch.setUpImages()
 
 x = tf.placeholder(tf.float32, shape=[None, 32, 32, 3])
 trueOutput = tf.placeholder(tf.float32, shape=[None, 10])
@@ -41,7 +41,6 @@ layerAfterDropout = tf.nn.dropout(fullConnectedLayer, keep_prob=dropoutProb)
 y = CIFARHelper.normalFullLayer(layerAfterDropout, 10)
 crossEntropy = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels=trueOutput, logits=y))
 optimizer = tf.train.AdamOptimizer(learning_rate=LEARNING_RATE)
-
 train = optimizer.minimize(crossEntropy)
 
 writer = tf.summary.FileWriter(FILEWRITER_PATH)
@@ -61,6 +60,6 @@ with tf.Session() as sess:
         batch = ch.next_batch(BATCH_SIZE)
         sess.run(train, feed_dict={x: batch[0], trueOutput: batch[1], dropoutProb: 1 - DROPOUT})
         if i % 5 == 0:
-            summary, acc = sess.run([mergedSummary, accuracy], feed_dict={x: ch.test_images, trueOutput: ch.test_labels, dropoutProb: 1.0})
+            summary, acc = sess.run([mergedSummary, accuracy], feed_dict={x: ch.TestImages, trueOutput: ch.TestLabels, dropoutProb: 1.0})
             writer.add_summary(summary, i)
-            print('Step {} , Accuracy is:{:.4f}'.format(i, sess.run(accuracy, feed_dict={x: ch.test_images, trueOutput: ch.test_labels, dropoutProb: 1.0})))
+            print('Step {} , Accuracy is:{:.4f}'.format(i, sess.run(accuracy, feed_dict={x: ch.TestImages, trueOutput: ch.TestLabels, dropoutProb: 1.0})))
