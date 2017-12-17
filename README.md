@@ -29,3 +29,10 @@ mkdir tensorboard
 Training basic cnn uses CIFAR10.py
 
 Training AlexNet uses CIFAR10AlexNet.py
+
+### 3.TensorBoard
+
+```
+tensorboard --logdir=cifarOutput/tensorboard
+
+```
